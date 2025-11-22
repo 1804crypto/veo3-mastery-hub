@@ -104,6 +104,8 @@ const App: React.FC = () => {
       const publicPages: Page[] = ['home', 'journey'];
       if (!publicPages.includes(currentPage)) {
         setCurrentPage('home');
+        setShowAuthModal(true);
+        setInitialAuthTab('login');
       }
     }
   }, [isAuthenticated, isUserLoading, currentPage]);

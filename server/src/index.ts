@@ -39,6 +39,8 @@ app.use(cors({
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
 
+        console.log('CORS Check - Origin:', origin, 'Environment:', isDevelopment ? 'development' : 'production');
+
         if (isDevelopment) {
             // In development, allow any localhost origin (any port) for easier testing
             if (origin.startsWith('http://localhost') ||
