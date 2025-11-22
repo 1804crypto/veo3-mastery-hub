@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Content Security Policy (CSP) -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://js.stripe.com https://accounts.google.com https://cdn.tailwindcss.com https://aistudiocdn.com;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+        img-src 'self' https://images.unsplash.com data:;
+        connect-src 'self' https:;
+        frame-src https://js.stripe.com https://accounts.google.com;
+    ">
+
+    <!-- SEO Meta Tags -->
+    <title>VEO3 Mastery Hub | AI Video Generation & Text-to-Video Prompts</title>
+    <meta name="description" content="Master VEO3 with our ultimate guide to AI video generation. Learn cinematic text-to-video techniques and use our advanced AI prompt generator to create stunning, professional-grade AI content. Unlock the future of AI video." />
+    <meta name="keywords" content="VEO3, AI video generation, text to video, AI content, AI video, prompt engineering, cinematic AI, Google VEO, video creation, prompt generator, VEO3 guide, VEO3 tutorial" />
+    <link rel="canonical" href="https://veo3-mastery-hub.example.com/" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph Meta Tags (for social sharing) -->
+    <meta property="og:title" content="VEO3 Mastery Hub | AI Video Generation & Text-to-Video Prompts" />
+    <meta property="og:description" content="The ultimate guide to mastering VEO3. Learn cinematic text-to-video techniques and use our advanced AI prompt generator." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://veo3-mastery-hub.example.com/" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1677756119517-756a188d2d94?q=80&w=1200&auto=format&fit=crop" />
+    <meta property="og:image:alt" content="Futuristic AI generating cinematic video" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="VEO3 Mastery Hub | AI Video Generation & Text-to-Video Prompts" />
+    <meta name="twitter:description" content="The ultimate guide to mastering VEO3. Learn cinematic text-to-video techniques and use our advanced AI prompt generator." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1677756119517-756a188d2d94?q=80&w=1200&auto=format&fit=crop" />
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Montserrat', sans-serif;
+      }
+      h1, h2, h3, h4, h5, h6, .font-heading {
+        font-family: 'Bebas Neue', cursive;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .page-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+      @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+      }
+      .animate-shimmer {
+        animation: shimmer 2s infinite linear;
+        background: linear-gradient(to right, 
+            rgba(55, 65, 81, 0.5) 4%, 
+            rgba(75, 85, 99, 0.5) 25%, 
+            rgba(55, 65, 81, 0.5) 36%);
+        background-size: 1000px 100%;
+      }
+       /* Tooltip styles */
+      .tooltip-container {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+      }
+      .tooltip-bubble {
+        position: absolute;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #111827; /* gray-900 */
+        color: #d1d5db; /* gray-300 */
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.4;
+        z-index: 50;
+        width: 280px;
+        text-align: left;
+        white-space: normal;
+        border: 1px solid #374151; /* gray-700 */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        pointer-events: none;
+      }
+      .tooltip-container:hover .tooltip-bubble {
+        visibility: visible;
+        opacity: 1;
+        transform: translateX(-50%) translateY(-5px);
+      }
+      .tooltip-bubble::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #111827 transparent transparent transparent;
+      }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "cors": "https://aistudiocdn.com/cors@^2.8.5",
+    "express": "https://aistudiocdn.com/express@^5.1.0",
+    "dotenv": "https://aistudiocdn.com/dotenv@^17.2.3",
+    "cookie-parser": "https://aistudiocdn.com/cookie-parser@^1.4.7",
+    "bcrypt": "https://aistudiocdn.com/bcrypt@^6.0.0",
+    "process": "https://aistudiocdn.com/process@^0.11.10",
+    "@prisma/client": "https://aistudiocdn.com/@prisma/client@^6.18.0",
+    "jsonwebtoken": "https://aistudiocdn.com/jsonwebtoken@^9.0.2",
+    "stripe": "https://aistudiocdn.com/stripe@^19.2.0",
+    "url": "https://aistudiocdn.com/url@^0.11.4",
+    "fs": "https://aistudiocdn.com/fs@^0.0.1-security",
+    "path": "https://aistudiocdn.com/path@^0.12.7",
+    "helmet": "https://aistudiocdn.com/helmet@^8.1.0",
+    "child_process": "https://aistudiocdn.com/child_process@^1.0.2",
+    "vitest": "https://aistudiocdn.com/vitest@^4.0.6",
+    "supertest": "https://aistudiocdn.com/supertest@^7.1.4"
+  }
+}
+</script>
+    <!-- Structured Data (JSON-LD) for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "VEO3 Mastery Hub",
+          "description": "An interactive guide and AI tool for mastering Google's VEO3 text-to-video model. Features a comprehensive learning journey and a powerful AI prompt generator for creating blockbuster cinematic videos.",
+          "applicationCategory": ["MultimediaApplication", "DesignApplication"],
+          "operatingSystem": "Any",
+          "url": "https://veo3-mastery-hub.example.com/",
+          "keywords": "VEO3, AI video generation, text to video, AI content, AI video, prompt engineering",
+          "offers": [
+            {
+              "@type": "Offer",
+              "name": "Free Plan",
+              "price": "0",
+              "priceCurrency": "USD",
+              "description": "Limited access with 5 free prompt generations per day."
+            },
+            {
+              "@type": "Offer",
+              "name": "Pro Plan",
+              "price": "4.00",
+              "priceCurrency": "USD",
+              "description": "Unlimited access to the AI prompt generator and all features."
+            },
+            {
+              "@type": "Offer",
+              "name": "Lifetime Access",
+              "price": "49.99",
+              "priceCurrency": "USD",
+              "description": "One-time payment for lifetime unlimited access."
+            }
+          ]
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "What is VEO3?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "VEO3 is Google's most advanced text-to-video AI model, capable of generating high-quality, cinematic video clips with remarkable consistency and realism from simple text prompts."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I create good AI video with VEO3?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Creating professional AI video requires structured, detailed prompts that specify cinematic elements like camera angles, lighting, and subject details. The VEO3 Mastery Hub teaches these professional prompt engineering techniques."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is this an official Google VEO3 app?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The VEO3 Mastery Hub is an independent, third-party educational tool and prompt generator designed to help users master Google's VEO3 model and is not affiliated with Google."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is text-to-video generation?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Text-to-video generation is a type of artificial intelligence that creates video content from written text descriptions, allowing for the rapid creation of visual media without cameras or complex software."
+              }
+            }
+          ]
+        }
+      ]
+    }
+    </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-900 text-gray-200">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

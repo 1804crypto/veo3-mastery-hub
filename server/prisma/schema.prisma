@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String    @id @default(uuid())
+  email              String    @unique
+  password_hash      String?   // Optional for Google OAuth users
+  google_id          String?   @unique // Google OAuth user ID
+  subscription_status String   @default("free") // 'free' or 'pro'
+  stripe_customer_id String?   @unique
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+
+  @@map("users")
+  prompts            Prompt[]
+  posts              Post[]
+  likes              Like[]
+  comments           Comment[]
+}
+
+model Prompt {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  prompt      String
+  type        String   @default("image") // 'image' or 'video'
+  style       String?
+  aspectRatio String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("prompts")
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  title     String
+  content   String
+  prompt    String
+  tags      String[]
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  likes     Like[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("posts")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("comments")
+}
