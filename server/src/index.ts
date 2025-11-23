@@ -29,10 +29,13 @@ app.use(helmet({
 const clientOrigin = process.env.CLIENT_ORIGIN;
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// Parse allowed origins (handle comma-separated list)
+const clientOrigins = clientOrigin ? clientOrigin.split(',').map(o => o.trim()) : [];
+
 // For development, allow localhost origins (any port)
 const allowedOrigins = isDevelopment
-    ? ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8000', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:8000', clientOrigin].filter(Boolean)
-    : clientOrigin ? [clientOrigin] : [];
+    ? ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8000', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:8000', ...clientOrigins].filter(Boolean)
+    : clientOrigins;
 
 app.use(cors({
     origin: (origin, callback) => {
