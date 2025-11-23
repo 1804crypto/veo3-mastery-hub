@@ -59,7 +59,7 @@
 
 3. **Add Environment Variables:**
    ```
-   VITE_API_BASE_URL=https://your-render-url.onrender.com
+   VITE_API_BASE_URL=https://veo3-mastery-hub-api.onrender.com
    VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
    VITE_GOOGLE_CLIENT_ID=675312284371-...
    VITE_GEMINI_API_KEY=AIzaSyBzm8lIg2Tjhw6b2uVEuoDvAXLUjKqKHuQ
@@ -76,9 +76,9 @@
 1. **Update Render Environment:**
    - Add these variables in Render:
    ```
-   CLIENT_ORIGIN=https://your-netlify-site.netlify.app
-   CLIENT_SUCCESS_URL=https://your-netlify-site.netlify.app?payment=success
-   CLIENT_CANCEL_URL=https://your-netlify-site.netlify.app?payment=cancelled
+   CLIENT_ORIGIN=https://veo3-mastery-hub.netlify.app
+   CLIENT_SUCCESS_URL=https://veo3-mastery-hub.netlify.app?payment=success
+   CLIENT_CANCEL_URL=https://veo3-mastery-hub.netlify.app?payment=cancelled
    ```
 
 2. **Save** (triggers auto-redeploy)
