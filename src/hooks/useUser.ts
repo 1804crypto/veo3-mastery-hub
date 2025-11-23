@@ -6,7 +6,7 @@ interface UserResponse {
 }
 
 const fetchUser = async (): Promise<User | null> => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com';
     const response = await fetch(`${apiUrl}/api/me`, {
         method: 'GET',
         credentials: 'include',
