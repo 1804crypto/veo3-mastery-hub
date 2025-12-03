@@ -187,18 +187,16 @@ const App: React.FC = () => {
               <Route
                 path="/generator"
                 element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<GeneratorSkeleton />}>
-                      <PromptGenerator
-                        hasAccess={hasAccess}
-                        openSubscriptionModal={openSubscriptionModal}
-                        userId={userId}
-                        userEmail={userEmail}
-                        isAuthenticated={isAuthenticated}
-                        openAuthModal={openAuthModal}
-                      />
-                    </Suspense>
-                  </ProtectedRoute>
+                  <Suspense fallback={<GeneratorSkeleton />}>
+                    <PromptGenerator
+                      hasAccess={hasAccess}
+                      openSubscriptionModal={openSubscriptionModal}
+                      userId={userId}
+                      userEmail={userEmail}
+                      isAuthenticated={isAuthenticated}
+                      openAuthModal={openAuthModal}
+                    />
+                  </Suspense>
                 }
               />
               <Route
