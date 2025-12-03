@@ -12,7 +12,7 @@ declare global {
 const OUTPUT_SAMPLE_RATE = 24000;
 
 const generateSpeech = async (text: string) => {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL || process.env.VITE_API_BASE_URL || '';
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
   const response = await fetch(`${apiUrl}/api/generate-speech`, {
     method: 'POST',
     headers: {

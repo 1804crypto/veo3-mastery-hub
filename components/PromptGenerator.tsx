@@ -341,8 +341,9 @@ const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscr
       return;
     }
 
-    if (!isAuthenticated) {
-      addToast('Please sign up or log in to generate prompts.', 'info');
+    // Allow guest access if they have free uses
+    if (!isAuthenticated && freeUses <= 0) {
+      addToast('You have reached your daily free limit. Please sign up for more.', 'info');
       openAuthModal('signup');
       return;
     }
@@ -442,7 +443,7 @@ const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscr
           className="w-full h-32 p-4 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all resize-none"
           disabled={isAuthenticated && !hasAccess && freeUses <= 0}
         />
-        <Button onClick={handleGenerate} disabled={isGenerating || (isAuthenticated && !hasAccess && freeUses <= 0)} size="lg" className="w-full">
+        <Button onClick={handleGenerate} disabled={isGenerating || (!hasAccess && freeUses <= 0)} size="lg" className="w-full">
           {isGenerating ? (
             <div className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

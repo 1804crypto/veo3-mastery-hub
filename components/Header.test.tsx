@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import Header from './Header';
 
-const renderHeader = (props: any = {}) => {
+const renderHeader = (props: Record<string, unknown> = {}) => {
     const defaultProps = {
         isAuthenticated: false,
         hasAccess: false,
@@ -39,7 +39,7 @@ describe('Header Component', () => {
         renderHeader({ isAuthenticated: true, userEmail: 'test@example.com' });
         const userButton = screen.getByRole('button', { name: /User Account/i });
         fireEvent.click(userButton);
-        expect(screen.getByText('Logout')).toBeInTheDocument();
+        expect(screen.getAllByText('Logout').length).toBeGreaterThan(0);
     });
 
     it('shows Upgrade button when authenticated but no access', () => {

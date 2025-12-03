@@ -46,11 +46,30 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, hasAccess, onAuthClick
   return (
     <header className="bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg shadow-black/20">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-3xl md:text-4xl font-heading tracking-wider text-white cursor-pointer">
+        <Link to="/" className="text-3xl md:text-4xl font-heading tracking-wider text-white cursor-pointer z-50 relative">
           <span className="text-blue-400">VEO3</span> Mastery Hub
         </Link>
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <nav className="hidden sm:flex items-center space-x-1">
+
+        {/* Mobile Menu Button */}
+        <button
+          className="sm:hidden z-50 p-2 text-gray-300 hover:text-white focus:outline-none"
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          aria-label="Toggle menu"
+        >
+          {isDropdownOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+
+        {/* Desktop Navigation */}
+        <div className="hidden sm:flex items-center space-x-2 md:space-x-4">
+          <nav className="flex items-center space-x-1">
             <NavLink to="/" className={navLinkClass} end title="Home">
               {({ isActive }) => (
                 <>
@@ -104,7 +123,7 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, hasAccess, onAuthClick
           </nav>
 
           {!hasAccess && (
-            <Button onClick={onUpgradeClick} variant="primary" size="sm" className="hidden sm:block !ml-4">
+            <Button onClick={onUpgradeClick} variant="primary" size="sm" className="!ml-4">
               Upgrade to Pro
             </Button>
           )}
@@ -134,12 +153,64 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, hasAccess, onAuthClick
               <Button onClick={() => onAuthClick('login')} variant="secondary" size="md">
                 Login
               </Button>
-              <Button onClick={() => onAuthClick('signup')} variant="primary" size="md" className="hidden sm:block">
+              <Button onClick={() => onAuthClick('signup')} variant="primary" size="md">
                 Sign Up
               </Button>
             </div>
           )}
         </div>
+
+        {/* Mobile Navigation Overlay */}
+        {isDropdownOpen && (
+          <div className="fixed inset-0 bg-gray-900/95 backdrop-blur-lg z-40 sm:hidden flex flex-col items-center justify-center space-y-8 animate-fadeIn">
+            <nav className="flex flex-col items-center space-y-6 text-xl">
+              <NavLink to="/" onClick={() => setIsDropdownOpen(false)} className={({ isActive }) => isActive ? "text-blue-400 font-bold" : "text-gray-300 hover:text-white"}>
+                Home
+              </NavLink>
+              <NavLink to="/journey" onClick={() => setIsDropdownOpen(false)} className={({ isActive }) => isActive ? "text-blue-400 font-bold" : "text-gray-300 hover:text-white"}>
+                Learning Journey
+              </NavLink>
+              <NavLink to="/generator" onClick={() => setIsDropdownOpen(false)} className={({ isActive }) => isActive ? "text-blue-400 font-bold" : "text-gray-300 hover:text-white"}>
+                Prompt Generator
+              </NavLink>
+              <NavLink to="/studio" onClick={() => setIsDropdownOpen(false)} className={({ isActive }) => isActive ? "text-blue-400 font-bold" : "text-gray-300 hover:text-white"}>
+                Video Studio
+              </NavLink>
+              <NavLink to="/community" onClick={() => setIsDropdownOpen(false)} className={({ isActive }) => isActive ? "text-blue-400 font-bold" : "text-gray-300 hover:text-white"}>
+                Community Hub
+              </NavLink>
+            </nav>
+
+            <div className="flex flex-col items-center space-y-4 w-full px-8">
+              {!hasAccess && (
+                <Button onClick={() => { onUpgradeClick(); setIsDropdownOpen(false); }} variant="primary" size="lg" className="w-full">
+                  Upgrade to Pro
+                </Button>
+              )}
+
+              {isAuthenticated ? (
+                <>
+                  <div className="text-gray-400 text-sm">Signed in as {userEmail}</div>
+                  <Button onClick={handleSettingsClick} variant="secondary" size="lg" className="w-full">
+                    Account Settings
+                  </Button>
+                  <Button onClick={handleLogoutClick} variant="secondary" size="lg" className="w-full">
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button onClick={() => { onAuthClick('login'); setIsDropdownOpen(false); }} variant="secondary" size="lg" className="w-full">
+                    Login
+                  </Button>
+                  <Button onClick={() => { onAuthClick('signup'); setIsDropdownOpen(false); }} variant="primary" size="lg" className="w-full">
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
