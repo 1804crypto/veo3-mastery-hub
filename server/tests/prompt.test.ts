@@ -10,20 +10,24 @@ const agent = request.agent(app);
 
 describe('Prompt Generation Route: /api/generate-prompt', () => {
 
+    const originalApiKey = process.env.GEMINI_API_KEY;
+
     beforeAll(() => {
         // Reset the test database to a clean state before tests run
-        execSync('npx prisma migrate reset --force', { stdio: 'ignore' });
+        execSync('npx prisma db push --force-reset', { stdio: 'ignore' });
+        delete process.env.GEMINI_API_KEY;
     });
 
     afterAll(async () => {
         await prisma.$disconnect();
+        process.env.GEMINI_API_KEY = originalApiKey;
     });
 
     it('should return 401 Unauthorized when not authenticated', async () => {
         const res = await request(app)
             .post('/api/generate-prompt')
             .send({ idea: 'A test idea from an unauthenticated user.' });
-        
+
         expect(res.status).toBe(401);
     });
 
@@ -42,11 +46,11 @@ describe('Prompt Generation Route: /api/generate-prompt', () => {
         const res = await agent
             .post('/api/generate-prompt')
             .send({ idea: 'A test idea from an authenticated user.' });
-        
+
         expect(res.status).toBe(200);
         expect(res.body).toHaveProperty('ok', true);
         expect(res.body).toHaveProperty('prompt');
-        
+
         // Since the GEMINI_API_KEY environment variable is not set in the test environment,
         // the server should return a mocked response. We verify its contents.
         const prompt = JSON.parse(res.body.prompt);
@@ -68,11 +72,11 @@ describe('Prompt Generation Route: /api/generate-prompt', () => {
         const res = await agent
             .post('/api/generate-prompt')
             .send({ not_an_idea: 'some other data' });
-        
+
         expect(res.status).toBe(400);
         expect(res.body).toEqual({
             ok: false,
-            message: 'The "idea" field is required.',
+            message: 'Please provide a valid video idea (3-1000 characters).',
         });
     });
 });

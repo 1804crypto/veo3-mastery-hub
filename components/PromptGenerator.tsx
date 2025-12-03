@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGeneratePrompt, useAddPromptHistory } from '../src/hooks/usePrompt';
 import Button from './ui/Button';
 import CodeDisplay from './ui/CodeDisplay';
@@ -269,11 +270,10 @@ interface PromptGeneratorProps {
   userId: string | null;
   userEmail: string | null;
   isAuthenticated: boolean;
-  navigateToStudio: (prompt: string) => void;
   openAuthModal: (tab?: AuthTab) => void;
 }
 
-const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscriptionModal, userId, userEmail, isAuthenticated, navigateToStudio, openAuthModal }) => {
+const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscriptionModal, userId, isAuthenticated, openAuthModal }) => {
   const [freeUses, setFreeUses] = useState(5);
   const [limitTimestamp, setLimitTimestamp] = useState<number | null>(null);
   const [timeRemaining, setTimeRemaining] = useState('');
@@ -283,6 +283,7 @@ const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscr
 
   const [error, setError] = useState<string | null>(null);
   const { addToast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (hasAccess) return;
@@ -389,7 +390,7 @@ const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscr
       console.error('Error generating prompt:', err);
       setError('Failed to generate prompt. Please try again.');
     }
-  }, [idea, freeUses, hasAccess, openSubscriptionModal, isAuthenticated, userId, userEmail, addToast, openAuthModal, generatePrompt, addToHistory]);
+  }, [idea, freeUses, hasAccess, openSubscriptionModal, isAuthenticated, userId, addToast, openAuthModal, generatePrompt, addToHistory]);
 
   const copyPrompt = (prompt: object) => {
     navigator.clipboard.writeText(JSON.stringify(prompt, null, 2));
@@ -408,13 +409,11 @@ const PromptGenerator: React.FC<PromptGeneratorProps> = ({ hasAccess, openSubscr
 
   const handleGenerateVideo = () => {
     if (generatedPrompt?.veo3_prompt) {
-      navigateToStudio(generatedPrompt.veo3_prompt);
+      navigate('/studio', { state: { prompt: generatedPrompt.veo3_prompt } });
     } else {
       addToast('Cannot generate video without a valid prompt.', 'error');
     }
   }
-
-  const canGenerate = (isAuthenticated && hasAccess) || (isAuthenticated && freeUses > 0) || !isAuthenticated;
 
   return (
     <div className="w-full max-w-4xl mx-auto">

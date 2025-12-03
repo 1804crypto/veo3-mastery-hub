@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { generateVEO3Prompt } from '../../services/geminiService';
-import { PromptHistoryItem, VEO3Prompt } from '../types';
+import { PromptHistoryItem } from '../types';
 
 // --- History Management (Backend API) ---
 

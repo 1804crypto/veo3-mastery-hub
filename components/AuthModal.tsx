@@ -11,7 +11,6 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthSuccess: () => void;
-  onGoogleSignIn: () => void;
   initialTab?: AuthTab;
 }
 
@@ -42,7 +41,7 @@ declare global {
   }
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, onGoogleSignIn, initialTab = 'login' }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, initialTab = 'login' }) => {
   const [activeView, setActiveView] = useState<AuthView>(initialTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -144,17 +143,27 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, o
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
+
+    // Get values directly from form to handle browser autofill
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.querySelector('#signup-email') as HTMLInputElement;
+    const passwordInput = form.querySelector('#signup-password') as HTMLInputElement;
+    const confirmPasswordInput = form.querySelector('#signup-confirm-password') as HTMLInputElement;
+    const emailValue = emailInput?.value || email;
+    const passwordValue = passwordInput?.value || password;
+    const confirmPasswordValue = confirmPasswordInput?.value || confirmPassword;
+
+    if (passwordValue !== confirmPasswordValue) {
       setError("Passwords do not match.");
       return;
     }
     setError(null);
     setIsLoading(true);
     try {
-      const result = await registerUser(email, password);
+      const result = await registerUser(emailValue, passwordValue);
       if (result.ok) {
         // Automatically log the user in after successful registration
-        const loginResult = await loginUser(email, password);
+        const loginResult = await loginUser(emailValue, passwordValue);
         if (loginResult.ok) {
           onAuthSuccess();
         } else {
@@ -174,10 +183,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, o
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+
+    // Get values directly from form to handle browser autofill
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.querySelector('#login-email') as HTMLInputElement;
+    const passwordInput = form.querySelector('#login-password') as HTMLInputElement;
+    const emailValue = emailInput?.value || email;
+    const passwordValue = passwordInput?.value || password;
+
     try {
-      const result = await loginUser(email, password);
+      const result = await loginUser(emailValue, passwordValue);
       if (result.ok) {
         onAuthSuccess();
+        onClose();
       } else {
         setError(result.message || 'An unknown error occurred.');
       }

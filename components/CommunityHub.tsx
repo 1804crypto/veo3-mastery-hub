@@ -55,7 +55,7 @@ const mockGallery = [
 const CommunityHub: React.FC<CommunityHubProps> = ({ hasAccess, openSubscriptionModal }) => {
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [newMessage, setNewMessage] = useState('');
-    const [isTyping, setIsTyping] = useState(false);
+    const [isTyping] = useState(false);
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const { mutateAsync: getAIReply, isPending: isAiThinking } = useCommunityAI();

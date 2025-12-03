@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePromptHistory, useDeletePromptHistory, useClearPromptHistory } from '../src/hooks/usePrompt';
-import { PromptHistoryItem } from '../src/types';
+
 import { useToast } from '../contexts/ToastContext';
 import Button from './ui/Button';
 import CodeDisplay from './ui/CodeDisplay';

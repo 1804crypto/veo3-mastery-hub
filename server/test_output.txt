@@ -1,0 +1,163 @@
+
+ RUN  v1.6.1 /Users/freeemall/Downloads/veo3-mastery-hub (3)/server
+
+stdout | Module.validateEnv (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/utils/validateEnv.ts:67:13)
+✅ Environment variables validated successfully
+
+
+stdout | tests/prompt.test.ts > Prompt Generation Route: /api/generate-prompt > should return 200 and a mock prompt when authenticated
+[2025-12-03T10:19:53.506Z] Prompt generation request for user: 6baeb5cf-b000-4576-8670-c8e2776d2949, idea length: 39
+
+stdout | tests/prompt.test.ts > Prompt Generation Route: /api/generate-prompt > should return 200 and a mock prompt when authenticated
+<empty line>
+stderr | tests/prompt.test.ts > Prompt Generation Route: /api/generate-prompt > should return 200 and a mock prompt when authenticated
+Error calling Gemini API: ApiError: {"error":{"code":403,"message":"Your API key was reported as leaked. Please use another API key.","status":"PERMISSION_DENIED"}}
+    at throwErrorIfNotOK (file:///Users/freeemall/Downloads/veo3-mastery-hub%20(3)/server/node_modules/@google/genai/dist/node/index.mjs:11103:30)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at file:///Users/freeemall/Downloads/veo3-mastery-hub%20(3)/server/node_modules/@google/genai/dist/node/index.mjs:10880:13
+    at Models.generateContent (file:///Users/freeemall/Downloads/veo3-mastery-hub%20(3)/server/node_modules/@google/genai/dist/node/index.mjs:12137:24)
+    at Module.generatePromptFromIdea (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/utils/gemini.ts:58:22)
+    at generatePrompt (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/controllers/promptController.ts:32:20) {
+  status: 403
+}
+Error in prompt generation controller: Error: Failed to generate prompt from Gemini API.
+    at Module.generatePromptFromIdea (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/utils/gemini.ts:119:11)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at generatePrompt (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/controllers/promptController.ts:32:20)
+
+ ❯ tests/prompt.test.ts  (3 tests | 1 failed) 3131ms
+   ❯ tests/prompt.test.ts > Prompt Generation Route: /api/generate-prompt > should return 200 and a mock prompt when authenticated
+     → expected 500 to be 200 // Object.is equality
+stdout | Module.validateEnv (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/utils/validateEnv.ts:67:13)
+✅ Environment variables validated successfully
+
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "neondb", schema "public" at "ep-lively-hall-adig6umy-pooler.c-2.us-east-1.aws.neon.tech"
+
+The PostgreSQL database "neondb" schema "public" at "ep-lively-hall-adig6umy-pooler.c-2.us-east-1.aws.neon.tech" was successfully reset.
+
+🚀  Your database is now in sync with your Prisma schema. Done in 587ms
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to ./node_modules/@prisma/client in 61ms
+
+ ❯ tests/auth.test.ts  (5 tests | 4 failed) 2853ms
+   ❯ tests/auth.test.ts > Auth Routes: /api/auth > should register a new user successfully (POST /register)
+     → expected { ok: true, …(2) } to have property "message" with value 'User created successfully'
+   ❯ tests/auth.test.ts > Auth Routes: /api/auth > should fail to register a user with an existing email (POST /register)
+     → expected { ok: false, …(1) } to have property "message" with value 'User with this email already exists'
+   ❯ tests/auth.test.ts > Auth Routes: /api/auth > should log in an existing user and set a secure cookie (POST /login)
+     → expected 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp…' to match /SameSite=Strict/
+   ❯ tests/auth.test.ts > Auth Routes: /api/auth > should fail to log in with an incorrect password (POST /login)
+     → expected { ok: false, …(1) } to have property "message" with value 'Invalid credentials'
+stdout | Module.validateEnv (/Users/freeemall/Downloads/veo3-mastery-hub (3)/server/src/utils/validateEnv.ts:67:13)
+✅ Environment variables validated successfully
+
+
+ ✓ tests/middleware.test.ts  (2 tests) 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/auth.test.ts > Auth Routes: /api/auth > should register a new user successfully (POST /register)
+AssertionError: expected { ok: true, …(2) } to have property "message" with value 'User created successfully'
+
+- Expected
++ Received
+
+- User created successfully
++ Account created successfully! Welcome!
+
+ ❯ tests/auth.test.ts:30:26
+     28|         expect(res.status).toBe(201);
+     29|         expect(res.body).toHaveProperty('ok', true);
+     30|         expect(res.body).toHaveProperty('message', 'User created succe…
+       |                          ^
+     31|     });
+     32| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+ FAIL  tests/auth.test.ts > Auth Routes: /api/auth > should fail to register a user with an existing email (POST /register)
+AssertionError: expected { ok: false, …(1) } to have property "message" with value 'User with this email already exists'
+
+- Expected
++ Received
+
+- User with this email already exists
++ An account with this email already exists. Please log in instead.
+
+ ❯ tests/auth.test.ts:39:26
+     37|         expect(res.status).toBe(409);
+     38|         expect(res.body).toHaveProperty('ok', false);
+     39|         expect(res.body).toHaveProperty('message', 'User with this ema…
+       |                          ^
+     40|     });
+     41| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯
+
+ FAIL  tests/auth.test.ts > Auth Routes: /api/auth > should log in an existing user and set a secure cookie (POST /login)
+AssertionError: expected 'token=eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp…' to match /SameSite=Strict/
+
+- Expected: 
+/SameSite=Strict/
+
++ Received: 
+"token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImIzMjM4M2YxLTU5MGEtNDM1MS1hMThlLTI5OWU4MzJjZGExYiIsImVtYWlsIjoidGVzdC0xNzY0NzU3MTk0Mzk4QGV4YW1wbGUuY29tIiwiaWF0IjoxNzY0NzU3MTk3LCJleHAiOjE3NjQ4NDM1OTd9.lIEjFfDkFL1HitwO745wyQrv3k2gCHNQmUEg2CW1MsI; Max-Age=86400; Path=/; Expires=Thu, 04 Dec 2025 10:19:57 GMT; HttpOnly; SameSite=Lax"
+
+ ❯ tests/auth.test.ts:53:24
+     51|         expect(cookie).toMatch(/token=.+/);
+     52|         expect(cookie).toMatch(/HttpOnly/);
+     53|         expect(cookie).toMatch(/SameSite=Strict/);
+       |                        ^
+     54|     });
+     55| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯
+
+ FAIL  tests/auth.test.ts > Auth Routes: /api/auth > should fail to log in with an incorrect password (POST /login)
+AssertionError: expected { ok: false, …(1) } to have property "message" with value 'Invalid credentials'
+
+- Expected
++ Received
+
+- Invalid credentials
++ Invalid email or password
+
+ ❯ tests/auth.test.ts:62:26
+     60|         expect(res.status).toBe(401);
+     61|         expect(res.body).toHaveProperty('ok', false);
+     62|         expect(res.body).toHaveProperty('message', 'Invalid credential…
+       |                          ^
+     63|     });
+     64| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/5]⎯
+
+ FAIL  tests/prompt.test.ts > Prompt Generation Route: /api/generate-prompt > should return 200 and a mock prompt when authenticated
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ ❯ tests/prompt.test.ts:46:28
+     44|             .send({ idea: 'A test idea from an authenticated user.' });
+     45| 
+     46|         expect(res.status).toBe(200);
+       |                            ^
+     47|         expect(res.body).toHaveProperty('ok', true);
+     48|         expect(res.body).toHaveProperty('prompt');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/5]⎯
+
+ Test Files  2 failed | 1 passed (3)
+      Tests  5 failed | 5 passed (10)
+   Start at  05:19:50
+   Duration  7.65s (transform 123ms, setup 0ms, collect 1.16s, tests 6.00s, environment 0ms, prepare 164ms)
+

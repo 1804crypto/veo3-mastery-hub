@@ -81,9 +81,11 @@ app.get('/health', (req: Request, res: Response) => {
     res.status(200).json({ ok: true, message: 'Server is healthy' });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`🚀 Server is running at http://localhost:${port}`);
-});
+// Start the server only if run directly
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`🚀 Server is running at http://localhost:${port}`);
+    });
+}
 
 export default app;

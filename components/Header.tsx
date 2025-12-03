@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Button from './ui/Button';
 import { AuthTab } from './AuthModal';
 import UserIcon from './ui/icons/UserIcon';
-import { Page } from '../src/types';
 
 interface HeaderProps {
-  currentPage: Page;
-  navigate: (page: Page) => void;
   isAuthenticated: boolean;
   hasAccess: boolean;
   onAuthClick: (tab: AuthTab) => void;
@@ -15,32 +13,10 @@ interface HeaderProps {
   userEmail: string | null;
 }
 
-const NavLink: React.FC<{
-  page: Page;
-  currentPage: Page;
-  navigate: (page: Page) => void;
-  children: React.ReactNode;
-  title: string;
-}> = React.memo(({ page, currentPage, navigate, children, title }) => {
-  const isActive = currentPage === page;
-  return (
-    <button
-      onClick={() => navigate(page)}
-      title={title}
-      className={`px-3 py-2 text-base rounded-md transition-colors duration-300 relative ${isActive ? 'text-blue-400' : 'text-gray-300 hover:text-white hover:bg-gray-700/50'
-        }`}
-    >
-      {children}
-      {isActive && (
-        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
-      )}
-    </button>
-  );
-});
-
-const Header: React.FC<HeaderProps> = ({ currentPage, navigate, isAuthenticated, hasAccess, onAuthClick, onLogout, onUpgradeClick, userEmail }) => {
+const Header: React.FC<HeaderProps> = ({ isAuthenticated, hasAccess, onAuthClick, onLogout, onUpgradeClick, userEmail }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,7 +31,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, navigate, isAuthenticated,
   }, []);
 
   const handleSettingsClick = () => {
-    navigate('settings');
+    navigate('/settings');
     setIsDropdownOpen(false);
   };
 
@@ -64,31 +40,66 @@ const Header: React.FC<HeaderProps> = ({ currentPage, navigate, isAuthenticated,
     setIsDropdownOpen(false);
   };
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `px-3 py-2 text-base rounded-md transition-colors duration-300 relative ${isActive ? 'text-blue-400' : 'text-gray-300 hover:text-white hover:bg-gray-700/50'}`;
+
   return (
     <header className="bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50 shadow-lg shadow-black/20">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1
-          className="text-3xl md:text-4xl font-heading tracking-wider text-white cursor-pointer"
-          onClick={() => navigate('home')}
-        >
+        <Link to="/" className="text-3xl md:text-4xl font-heading tracking-wider text-white cursor-pointer">
           <span className="text-blue-400">VEO3</span> Mastery Hub
-        </h1>
+        </Link>
         <div className="flex items-center space-x-2 md:space-x-4">
           <nav className="hidden sm:flex items-center space-x-1">
-            <NavLink page="home" currentPage={currentPage} navigate={navigate} title="Home">
-              Home
+            <NavLink to="/" className={navLinkClass} end title="Home">
+              {({ isActive }) => (
+                <>
+                  Home
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                  )}
+                </>
+              )}
             </NavLink>
-            <NavLink page="journey" currentPage={currentPage} navigate={navigate} title="Learning Journey">
-              Journey
+            <NavLink to="/journey" className={navLinkClass} title="Learning Journey">
+              {({ isActive }) => (
+                <>
+                  Journey
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                  )}
+                </>
+              )}
             </NavLink>
-            <NavLink page="generator" currentPage={currentPage} navigate={navigate} title="Prompt Generator">
-              Generator
+            <NavLink to="/generator" className={navLinkClass} title="Prompt Generator">
+              {({ isActive }) => (
+                <>
+                  Generator
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                  )}
+                </>
+              )}
             </NavLink>
-            <NavLink page="studio" currentPage={currentPage} navigate={navigate} title="Video Studio">
-              Video Studio
+            <NavLink to="/studio" className={navLinkClass} title="Video Studio">
+              {({ isActive }) => (
+                <>
+                  Video Studio
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                  )}
+                </>
+              )}
             </NavLink>
-            <NavLink page="community" currentPage={currentPage} navigate={navigate} title="Community Hub">
-              Community
+            <NavLink to="/community" className={navLinkClass} title="Community Hub">
+              {({ isActive }) => (
+                <>
+                  Community
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                  )}
+                </>
+              )}
             </NavLink>
           </nav>
 

@@ -1,12 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from './ui/Button';
-import { Page } from '../src/types';
 
-interface HomeProps {
-  navigate: (page: Page) => void;
-}
+const Home: React.FC = () => {
+  const navigate = useNavigate();
 
-const Home: React.FC<HomeProps> = ({ navigate }) => {
   return (
     <div className="text-center flex flex-col items-center justify-center">
       <div
@@ -22,10 +20,10 @@ const Home: React.FC<HomeProps> = ({ navigate }) => {
           Master the art of cinematic prompting for VEO3. Go from a simple idea to a blockbuster-level shot with our guided journey and professional-grade AI prompt generator.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
-          <Button onClick={() => navigate('journey')} size="lg" variant="primary">
+          <Button onClick={() => navigate('/journey')} size="lg" variant="primary">
             Start the Learning Journey
           </Button>
-          <Button onClick={() => navigate('generator')} size="lg" variant="secondary">
+          <Button onClick={() => navigate('/generator')} size="lg" variant="secondary">
             Go to Prompt Generator
           </Button>
         </div>

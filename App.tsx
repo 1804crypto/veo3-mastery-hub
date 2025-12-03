@@ -1,10 +1,11 @@
 import React, { useState, useCallback, lazy, Suspense, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './components/Home';
 import SubscriptionModal from './components/SubscriptionModal';
 import AuthModal, { AuthTab } from './components/AuthModal';
 import Skeleton from './components/ui/Skeleton';
-import { Page } from './src/types';
+import ProtectedRoute from './components/ProtectedRoute';
 import { useToast } from './contexts/ToastContext';
 import { logoutUser } from './services/authService';
 
@@ -75,7 +76,6 @@ const StudioSkeleton = () => (
 );
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<Page>('home');
   const { addToast } = useToast();
 
   // Subscription state
@@ -85,10 +85,7 @@ const App: React.FC = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [initialAuthTab, setInitialAuthTab] = useState<AuthTab>('login');
 
-  // State for passing prompt to Video Studio
-  const [promptForStudio, setPromptForStudio] = useState<string | null>(null);
-
-  const { data: user, isLoading: isUserLoading } = useUser();
+  const { data: user } = useUser();
   const invalidateUser = useInvalidateUser();
   const setUser = useSetUser();
 
@@ -98,18 +95,6 @@ const App: React.FC = () => {
   const userEmail = user?.email || null;
   const hasAccess = user?.subscription_status === 'pro';
 
-  // Redirect logic for protected routes
-  useEffect(() => {
-    if (!isUserLoading && !isAuthenticated) {
-      const publicPages: Page[] = ['home', 'journey'];
-      if (!publicPages.includes(currentPage)) {
-        setCurrentPage('home');
-        setShowAuthModal(true);
-        setInitialAuthTab('login');
-      }
-    }
-  }, [isAuthenticated, isUserLoading, currentPage]);
-
   const handleLogout = useCallback(async () => {
     try {
       await logoutUser();
@@ -118,7 +103,7 @@ const App: React.FC = () => {
     } finally {
       setUser(null);
       addToast("You have been logged out.", "info");
-      setCurrentPage('home');
+      // Navigation to home will be handled by router if on protected page, or remain if public
     }
   }, [setUser, addToast]);
 
@@ -136,12 +121,6 @@ const App: React.FC = () => {
     }
   }, [addToast, invalidateUser]);
 
-
-
-  const navigate = useCallback((page: Page) => {
-    setCurrentPage(page);
-  }, []);
-
   const openSubscriptionModal = useCallback((reason: 'upgrade' | 'limit_reached' = 'upgrade') => {
     setSubscriptionModalReason(reason);
     setShowSubscriptionModal(true);
@@ -153,12 +132,6 @@ const App: React.FC = () => {
     setShowAuthModal(false);
     invalidateUser();
   }, [invalidateUser]);
-
-  // Google Sign-In is now handled in AuthModal component
-  const handleGoogleSignIn = useCallback(() => {
-    // This is handled by AuthModal component
-    // The modal will trigger Google Sign-In when the button is clicked
-  }, []);
 
   const openAuthModal = useCallback((tab: AuthTab = 'login') => {
     setInitialAuthTab(tab);
@@ -175,57 +148,12 @@ const App: React.FC = () => {
     }
   }, [isAuthenticated, openSubscriptionModal, openAuthModal]);
 
-  const handleNavigateToStudio = (prompt: string) => {
-    setPromptForStudio(prompt);
-    navigate('studio');
-  };
-
-  const renderContent = () => {
-    let content;
-    let fallback;
-
-    switch (currentPage) {
-      case 'journey':
-        content = <LearningJourney />;
-        fallback = <JourneySkeleton />;
-        break;
-      case 'generator':
-        content = <PromptGenerator hasAccess={hasAccess} openSubscriptionModal={openSubscriptionModal} userId={userId} userEmail={userEmail} isAuthenticated={isAuthenticated} navigateToStudio={handleNavigateToStudio} openAuthModal={openAuthModal} />;
-        fallback = <GeneratorSkeleton />;
-        break;
-      case 'settings':
-        content = <AccountSettings userId={userId} userEmail={userEmail} hasAccess={hasAccess} openSubscriptionModal={() => openSubscriptionModal('upgrade')} />;
-        fallback = <SettingsSkeleton />;
-        break;
-      case 'community':
-        content = <CommunityHub hasAccess={hasAccess} openSubscriptionModal={() => openSubscriptionModal('upgrade')} />;
-        fallback = <CommunitySkeleton />;
-        break;
-      case 'studio':
-        content = <VideoStudio initialPrompt={promptForStudio} />;
-        fallback = <StudioSkeleton />;
-        break;
-      case 'home':
-      default:
-        content = <Home navigate={navigate} />;
-        fallback = null; // Home is not lazy loaded
-    }
-    return (
-      <div key={currentPage} className="page-fade-in">
-        <Suspense fallback={fallback}>
-          {content}
-        </Suspense>
-      </div>
-    );
-  };
-
   return (
-    <>
+    <BrowserRouter>
       <SubscriptionModal
         isOpen={showSubscriptionModal}
         onClose={closeSubscriptionModal}
         reason={subscriptionModalReason}
-        // These are placeholders, they will be implemented later
         onSubscribe={() => { }}
         onPurchase={() => { }}
       />
@@ -233,13 +161,10 @@ const App: React.FC = () => {
         isOpen={showAuthModal}
         onClose={closeAuthModal}
         onAuthSuccess={handleAuthSuccess}
-        onGoogleSignIn={handleGoogleSignIn}
         initialTab={initialAuthTab}
       />
       <div className="min-h-screen bg-gray-900 text-gray-200 flex flex-col">
         <Header
-          currentPage={currentPage}
-          navigate={navigate}
           isAuthenticated={isAuthenticated}
           hasAccess={hasAccess}
           onAuthClick={openAuthModal}
@@ -248,13 +173,81 @@ const App: React.FC = () => {
           userEmail={userEmail}
         />
         <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
-          {renderContent()}
+          <div className="page-fade-in">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/journey"
+                element={
+                  <Suspense fallback={<JourneySkeleton />}>
+                    <LearningJourney />
+                  </Suspense>
+                }
+              />
+              <Route
+                path="/generator"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<GeneratorSkeleton />}>
+                      <PromptGenerator
+                        hasAccess={hasAccess}
+                        openSubscriptionModal={openSubscriptionModal}
+                        userId={userId}
+                        userEmail={userEmail}
+                        isAuthenticated={isAuthenticated}
+                        openAuthModal={openAuthModal}
+                      />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/studio"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<StudioSkeleton />}>
+                      <VideoStudio />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/community"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<CommunitySkeleton />}>
+                      <CommunityHub
+                        hasAccess={hasAccess}
+                        openSubscriptionModal={() => openSubscriptionModal('upgrade')}
+                      />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<SettingsSkeleton />}>
+                      <AccountSettings
+                        userId={userId}
+                        userEmail={userEmail}
+                        hasAccess={hasAccess}
+                        openSubscriptionModal={() => openSubscriptionModal('upgrade')}
+                      />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </main>
         <footer className="text-center py-4 text-gray-500 text-sm">
           <p>&copy; 2025 VEO3 Mastery Hub. All rights reserved.</p>
         </footer>
       </div>
-    </>
+    </BrowserRouter>
   );
 };
 

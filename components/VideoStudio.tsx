@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleGenAI } from '@google/genai';
+import { useLocation } from 'react-router-dom';
 import Button from './ui/Button';
 import Card from './ui/Card';
 import { useToast } from '../contexts/ToastContext';
@@ -26,13 +27,12 @@ const loadingMessages = [
     "Adding synchronized audio...",
 ];
 
-interface VideoStudioProps {
-    initialPrompt: string | null;
-}
+const VideoStudio: React.FC = () => {
+    const location = useLocation();
+    const initialPrompt = location.state?.prompt as string | undefined;
 
-const VideoStudio: React.FC<VideoStudioProps> = ({ initialPrompt }) => {
     const [apiKeySelected, setApiKeySelected] = useState<boolean | null>(null);
-    const [prompt, setPrompt] = useState('');
+    const [prompt, setPrompt] = useState(initialPrompt || '');
     const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16'>('16:9');
     const [resolution, setResolution] = useState<'720p' | '1080p'>('1080p');
     const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +40,12 @@ const VideoStudio: React.FC<VideoStudioProps> = ({ initialPrompt }) => {
     const [generatedVideoUrl, setGeneratedVideoUrl] = useState<string | null>(null);
     const { addToast } = useToast();
     const { mutateAsync: downloadVideo } = useDownloadVideo();
+
+    useEffect(() => {
+        if (initialPrompt) {
+            setPrompt(initialPrompt);
+        }
+    }, [initialPrompt]);
 
     useEffect(() => {
         const checkApiKey = async () => {

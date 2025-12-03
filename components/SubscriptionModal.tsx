@@ -44,7 +44,7 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
   const [isProcessing, setIsProcessing] = useState<null | 'monthly' | 'lifetime'>(null);
   const { addToast } = useToast();
 
-  const { mutateAsync: createSession, isPending: isCreatingSession } = useCreateCheckoutSession();
+  const { mutateAsync: createSession } = useCreateCheckoutSession();
 
   useEffect(() => {
     if (!isOpen) {

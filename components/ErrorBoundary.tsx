@@ -73,7 +73,7 @@ class ErrorBoundary extends Component<Props, State> {
                             Oops! Something went wrong
                         </h1>
                         <p style={{ color: '#9ca3af', marginBottom: '2rem' }}>
-                            We're sorry for the inconvenience. An unexpected error occurred.
+                            We&apos;re sorry for the inconvenience. An unexpected error occurred.
                         </p>
 
                         {process.env.NODE_ENV === 'development' && this.state.error && (

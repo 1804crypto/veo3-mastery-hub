@@ -4,3 +4,10 @@ build
 coverage
 *.config.js
 *.config.ts
+temp-check.js
+simulation-test.js
+functional-test.js
+test-app.js
+server/full-system-test.js
+build-standalone-complete.js
+build-standalone.js

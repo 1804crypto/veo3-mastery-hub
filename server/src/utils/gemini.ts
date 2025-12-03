@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { VEO3Prompt } from '../types/shared';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
 
 const META_PROMPT = `
 You are "Cine-Maestro," an expert Hollywood film director and VEO3 prompt engineer. Your goal is to transform a user's raw video idea into a hyper-detailed, professional, 7-component JSON prompt for the VEO3 model.
@@ -29,8 +29,10 @@ export async function generatePromptFromIdea(
   style?: string, // style and length are kept for potential future use
   length?: string
 ): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+
   // If no API key is present, return a mocked response for development/testing
-  if (!GEMINI_API_KEY) {
+  if (!apiKey) {
     console.warn('GEMINI_API_KEY not found. Returning a mocked prompt.');
     const mockInnerPrompt = {
       Subject: `A mock subject for the idea: '${idea}'`,
@@ -52,7 +54,7 @@ export async function generatePromptFromIdea(
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const fullPrompt = `${META_PROMPT}"${idea}"`;
 
     const response = await ai.models.generateContent({
@@ -83,7 +85,6 @@ export async function generatePromptFromIdea(
       }
     });
 
-    return response.text || '';
     return response.text || '';
   } catch (error: unknown) {
     console.error('Error calling Gemini API:', error);
