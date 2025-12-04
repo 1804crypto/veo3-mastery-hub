@@ -24,7 +24,7 @@ const setAuthCookie = (res: Response, userId: string, email: string) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000,
     path: '/',
   });
@@ -213,7 +213,7 @@ export const logout = (req: Request, res: Response) => {
     httpOnly: true,
     expires: new Date(0),
     secure: isProduction,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     path: '/',
   });
   res.status(200).json({ ok: true, message: 'Logout successful' });

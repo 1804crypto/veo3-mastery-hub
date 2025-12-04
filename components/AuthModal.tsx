@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import { loginUser, registerUser } from '../services/authService';
