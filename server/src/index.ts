@@ -35,7 +35,7 @@ const clientOrigins = clientOrigin ? clientOrigin.split(',').map(o => o.trim()) 
 // For development, allow localhost origins (any port)
 const allowedOrigins = isDevelopment
     ? ['http://localhost:3000', 'http://localhost:5173', 'http://localhost:8000', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:8000', ...clientOrigins].filter(Boolean)
-    : clientOrigins;
+    : [...clientOrigins, 'https://veo3-mastery-hub.netlify.app'];
 
 app.use(cors({
     origin: (origin, callback) => {
