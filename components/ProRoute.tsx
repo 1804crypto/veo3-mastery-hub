@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAppStore } from '../store';
+import { useUser } from '../src/hooks/useUser';
 import { useToast } from '../contexts/ToastContext';
+import Skeleton from './ui/Skeleton';
 
 interface ProRouteProps {
     children: React.ReactNode;
@@ -9,15 +10,20 @@ interface ProRouteProps {
 }
 
 const ProRoute: React.FC<ProRouteProps> = ({ children, openSubscriptionModal }) => {
-    const { user, isAuthenticated } = useAppStore();
+    const { data: user, isLoading } = useUser();
     const location = useLocation();
-    const { addToast } = useToast();
+
+    if (isLoading) {
+        return <div className="container mx-auto px-4 py-8"><Skeleton className="h-96 w-full" /></div>;
+    }
+
+    const isAuthenticated = !!user;
 
     if (!isAuthenticated) {
         return <Navigate to="/" state={{ from: location, openAuth: true }} replace />;
     }
 
-    const isPro = user?.subscription === 'pro' || user?.subscription === 'lifetime';
+    const isPro = user?.subscription_status === 'pro' || user?.subscription_status === 'lifetime';
 
     if (!isPro) {
         // Redirect to home but trigger the subscription modal
