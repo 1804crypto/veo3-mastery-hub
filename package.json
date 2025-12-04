@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest"
   },
   "dependencies": {
     "@google/genai": "^1.27.0",
     "@prisma/client": "^6.18.0",
+    "@react-oauth/google": "^0.12.2",
     "@tanstack/react-query": "^5.90.10",
     "bcrypt": "^6.0.0",
     "child_process": "^1.0.2",

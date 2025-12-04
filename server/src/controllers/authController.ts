@@ -60,8 +60,19 @@ export const register = async (req: Request, res: Response) => {
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const isTestAccount = ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'].includes(normalizedEmail);
+
+    if (isTestAccount) {
+      console.log(`[Register] Creating test account with Pro access: ${normalizedEmail}`);
+    }
+
     const user = await prisma.user.create({
-      data: { email: email.trim().toLowerCase(), password_hash },
+      data: {
+        email: normalizedEmail,
+        password_hash,
+        subscription_status: isTestAccount ? 'pro' : 'free'
+      },
     });
 
     // Auto-login after registration
@@ -112,6 +123,23 @@ export const login = async (req: Request, res: Response) => {
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       return res.status(401).json({ ok: false, message: 'Invalid email or password' });
+    }
+
+    // Grant Pro access to test account if not already pro
+    const testEmails = ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'];
+    const normalizedUserEmail = user.email.toLowerCase();
+
+    if (testEmails.includes(normalizedUserEmail)) {
+      console.log(`[Login] Checking Pro status for test account: ${normalizedUserEmail}. Current status: ${user.subscription_status}`);
+
+      if (user.subscription_status !== 'pro') {
+        console.log(`[Login] Upgrading test account to Pro: ${normalizedUserEmail}`);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { subscription_status: 'pro' }
+        });
+        user.subscription_status = 'pro'; // Update local object for response
+      }
     }
 
     setAuthCookie(res, user.id, user.email);
@@ -185,8 +213,25 @@ export const googleAuth = async (req: Request, res: Response) => {
           email,
           ...(googleId ? { google_id: googleId } : {}),
           // password_hash is optional in schema, so we don't need to set it
+          subscription_status: ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'].includes(email.toLowerCase()) ? 'pro' : 'free',
         },
       });
+    }
+
+    // Grant Pro access to test account if not already pro (for existing users logging in via Google)
+    const testEmails = ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'];
+    const normalizedUserEmail = user.email.toLowerCase();
+
+    if (testEmails.includes(normalizedUserEmail)) {
+      console.log(`[GoogleAuth] Checking Pro status for test account: ${normalizedUserEmail}. Current status: ${user.subscription_status}`);
+
+      if (user.subscription_status !== 'pro') {
+        console.log(`[GoogleAuth] Upgrading test account to Pro: ${normalizedUserEmail}`);
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { subscription_status: 'pro' }
+        });
+      }
     }
 
     setAuthCookie(res, user.id, user.email);

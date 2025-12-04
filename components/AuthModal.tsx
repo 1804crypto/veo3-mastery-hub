@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
-import { loginUser, registerUser } from '../services/authService';
+import { GoogleLogin } from '@react-oauth/google';
+import { loginUser, registerUser, loginWithGoogle } from '../services/authService';
 
 export type AuthTab = 'login' | 'signup';
 type AuthView = AuthTab | 'forgotPassword';
@@ -44,6 +45,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
   }, [initialTab, isOpen]);
 
   if (!isOpen) return null;
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      if (credentialResponse.credential) {
+        const result = await loginWithGoogle(credentialResponse.credential);
+        if (result.ok) {
+          onAuthSuccessRef.current();
+          onCloseRef.current();
+        } else {
+          setError(result.message || 'Google authentication failed.');
+        }
+      }
+    } catch (err) {
+      setError('Failed to connect to the server. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,6 +163,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
         const isLogin = activeView === 'login';
         return (
           <div className="space-y-4">
+            <div className="flex justify-center mb-4">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Sign-In failed')}
+                theme="filled_black"
+                shape="pill"
+                width="100%"
+              />
+            </div>
+
+            <div className="relative flex items-center justify-center mb-4">
+              <div className="border-t border-gray-600 w-full"></div>
+              <span className="bg-gray-800 px-3 text-gray-400 text-sm">OR</span>
+              <div className="border-t border-gray-600 w-full"></div>
+            </div>
 
             <form onSubmit={isLogin ? handleLogin : handleSignUp} className="space-y-4">
               <Input id={isLogin ? "login-email" : "signup-email"} label="Email" type="email" placeholder="you@example.com" required value={email} onChange={e => setEmail(e.target.value)} />

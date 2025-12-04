@@ -12,14 +12,24 @@ if (!rootElement) {
 }
 
 const root = ReactDOM.createRoot(rootElement);
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+if (!googleClientId) {
+  console.warn("Missing VITE_GOOGLE_CLIENT_ID environment variable. Google Sign-In will not work.");
+}
+
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <ToastProvider>
-          <App />
-        </ToastProvider>
-      </QueryClientProvider>
+      <GoogleOAuthProvider clientId={googleClientId || "mock-client-id-for-dev"}>
+        <QueryClientProvider client={queryClient}>
+          <ToastProvider>
+            <App />
+          </ToastProvider>
+        </QueryClientProvider>
+      </GoogleOAuthProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );

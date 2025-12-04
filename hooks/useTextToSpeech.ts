@@ -13,6 +13,9 @@ const OUTPUT_SAMPLE_RATE = 24000;
 
 const generateSpeech = async (text: string) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+  console.log('[TTS] Generating speech for text:', text.substring(0, 50) + '...');
+  console.log('[TTS] API URL:', `${apiUrl}/api/generate-speech`);
+
   const response = await fetch(`${apiUrl}/api/generate-speech`, {
     method: 'POST',
     headers: {
