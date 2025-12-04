@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
-import GoogleIcon from './ui/icons/GoogleIcon';
-import { loginUser, registerUser, loginWithGoogle } from '../services/authService';
+import { loginUser, registerUser } from '../services/authService';
 
 export type AuthTab = 'login' | 'signup';
 type AuthView = AuthTab | 'forgotPassword';
@@ -14,32 +13,6 @@ interface AuthModalProps {
   initialTab?: AuthTab;
 }
 
-const OrDivider: React.FC = () => (
-  <div className="relative my-4">
-    <div className="absolute inset-0 flex items-center">
-      <div className="w-full border-t border-gray-600" />
-    </div>
-    <div className="relative flex justify-center text-sm">
-      <span className="bg-gray-800 px-2 text-gray-400">OR</span>
-    </div>
-  </div>
-);
-
-
-// Declare Google Sign-In API types
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        id: {
-          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
-          prompt: () => void;
-          renderButton: (element: HTMLElement, config: { theme?: string; size?: string; text?: string; width?: number }) => void;
-        };
-      };
-    };
-  }
-}
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, initialTab = 'login' }) => {
   const [activeView, setActiveView] = useState<AuthView>(initialTab);
@@ -48,7 +21,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   // Use ref to store latest callbacks to avoid recreating Google initialization
   const onAuthSuccessRef = useRef(onAuthSuccess);
@@ -59,26 +31,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     onCloseRef.current = onClose;
   }, [onAuthSuccess, onClose]);
 
-  const handleGoogleCallback = useCallback(async (response: { credential: string }) => {
-    setGoogleLoading(true);
-    setError(null);
-
-    try {
-      const result = await loginWithGoogle(response.credential);
-      if (result.ok) {
-        onAuthSuccessRef.current();
-        onCloseRef.current();
-      } else {
-        setError(result.message || 'Google authentication failed');
-      }
-    } catch (err) {
-      setError('Failed to connect to the server. Please try again.');
-    } finally {
-      setGoogleLoading(false);
-    }
-  }, []);
-
-  // Initialize Google Sign-In when modal opens
   useEffect(() => {
     if (isOpen) {
       setActiveView(initialTab);
@@ -88,56 +40,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
       setConfirmPassword('');
       setError(null);
       setIsLoading(false);
-      setGoogleLoading(false);
-
-      // Initialize Google Sign-In if available
-      const initGoogleSignIn = () => {
-        if (window.google && window.google.accounts) {
-          const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-          if (googleClientId) {
-            window.google.accounts.id.initialize({
-              client_id: googleClientId,
-              callback: handleGoogleCallback,
-            });
-          }
-        }
-      };
-
-      // Wait for Google script to load
-      if (window.google && window.google.accounts) {
-        initGoogleSignIn();
-      } else {
-        // Poll for Google script to load
-        const checkGoogle = setInterval(() => {
-          if (window.google && window.google.accounts) {
-            initGoogleSignIn();
-            clearInterval(checkGoogle);
-          }
-        }, 100);
-
-        // Cleanup after 5 seconds
-        const timeout = setTimeout(() => clearInterval(checkGoogle), 5000);
-
-        return () => {
-          clearInterval(checkGoogle);
-          clearTimeout(timeout);
-        };
-      }
     }
-  }, [initialTab, isOpen, handleGoogleCallback]);
-
-  const handleGoogleSignInClick = () => {
-    if (window.google && window.google.accounts) {
-      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-      if (googleClientId) {
-        window.google.accounts.id.prompt();
-      } else {
-        setError('Google Sign-In is not configured. Please contact support.');
-      }
-    } else {
-      setError('Google Sign-In is not available. Please refresh the page and try again.');
-    }
-  };
+  }, [initialTab, isOpen]);
 
   if (!isOpen) return null;
 
@@ -238,30 +142,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
         const isLogin = activeView === 'login';
         return (
           <div className="space-y-4">
-            <Button
-              onClick={handleGoogleSignInClick}
-              variant="google"
-              size="lg"
-              className="w-full flex items-center justify-center gap-2"
-              disabled={googleLoading || isLoading}
-            >
-              {googleLoading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Signing in...
-                </>
-              ) : (
-                <>
-                  <GoogleIcon />
-                  Continue with Google
-                </>
-              )}
-            </Button>
-
-            <OrDivider />
 
             <form onSubmit={isLogin ? handleLogin : handleSignUp} className="space-y-4">
               <Input id={isLogin ? "login-email" : "signup-email"} label="Email" type="email" placeholder="you@example.com" required value={email} onChange={e => setEmail(e.target.value)} />
