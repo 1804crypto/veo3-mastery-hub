@@ -11,7 +11,7 @@ interface AuthResponse {
     };
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hub-api.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com';
 
 export const registerUser = async (email: string, password: string): Promise<AuthResponse> => {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
