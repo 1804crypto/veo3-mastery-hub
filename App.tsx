@@ -6,6 +6,7 @@ import SubscriptionModal from './components/SubscriptionModal';
 import AuthModal, { AuthTab } from './components/AuthModal';
 import Skeleton from './components/ui/Skeleton';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProRoute from './components/ProRoute';
 import { useToast } from './contexts/ToastContext';
 import { logoutUser } from './services/authService';
 
@@ -202,24 +203,24 @@ const App: React.FC = () => {
               <Route
                 path="/studio"
                 element={
-                  <ProtectedRoute>
+                  <ProRoute openSubscriptionModal={openSubscriptionModal}>
                     <Suspense fallback={<StudioSkeleton />}>
                       <VideoStudio />
                     </Suspense>
-                  </ProtectedRoute>
+                  </ProRoute>
                 }
               />
               <Route
                 path="/community"
                 element={
-                  <ProtectedRoute>
+                  <ProRoute openSubscriptionModal={openSubscriptionModal}>
                     <Suspense fallback={<CommunitySkeleton />}>
                       <CommunityHub
                         hasAccess={hasAccess}
                         openSubscriptionModal={() => openSubscriptionModal('upgrade')}
                       />
                     </Suspense>
-                  </ProtectedRoute>
+                  </ProRoute>
                 }
               />
               <Route
