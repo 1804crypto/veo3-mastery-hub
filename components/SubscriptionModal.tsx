@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Button from './ui/Button';
-import { useToast } from '../contexts/ToastContext';
-import { useCreateCheckoutSession } from '../src/hooks/usePayment';
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -9,17 +7,7 @@ interface SubscriptionModalProps {
   reason: 'upgrade' | 'limit_reached';
 }
 
-// Get Stripe publishable key from environment variable
-const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '';
 
-// Let TypeScript know that the Stripe object is available on the window
-declare global {
-  interface Window {
-    Stripe: (key: string) => {
-      redirectToCheckout: (options: { sessionId: string }) => Promise<{ error?: { message: string } }>;
-    };
-  }
-}
 
 // --- Payment Method Icons ---
 const LoadingSpinner = () => (
@@ -42,9 +30,6 @@ const PaymentIcons = () => (
 
 const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, reason }) => {
   const [isProcessing, setIsProcessing] = useState<null | 'monthly' | 'lifetime'>(null);
-  const { addToast } = useToast();
-
-  const { mutateAsync: createSession } = useCreateCheckoutSession();
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,41 +40,17 @@ const SubscriptionModal: React.FC<SubscriptionModalProps> = ({ isOpen, onClose, 
 
   if (!isOpen) return null;
 
-  const handlePayment = async (type: 'monthly' | 'lifetime') => {
+  const handlePayment = (type: 'monthly' | 'lifetime') => {
+    // Direct Stripe payment links - bypasses the need for Stripe.js and publishable key
+    const paymentLinks = {
+      monthly: 'https://buy.stripe.com/fZu6oH61U00i5od7cL8k803',
+      lifetime: 'https://buy.stripe.com/bJedR99e6eVc4k9bt18k804'
+    };
+
     setIsProcessing(type);
-    const planId = type === 'monthly' ? 'pro_monthly' : 'lifetime';
 
-    try {
-      // 1. Call backend to create a checkout session
-      const sessionData = await createSession({ planId });
-
-      // 2. Redirect to Stripe Checkout using the session ID
-      if (!STRIPE_PUBLISHABLE_KEY) {
-        throw new Error('Stripe publishable key is not configured. Please contact support.');
-      }
-
-      const stripe = window.Stripe(STRIPE_PUBLISHABLE_KEY);
-      if (!stripe) {
-        throw new Error('Stripe.js has not loaded. Please check your connection.');
-      }
-
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: sessionData.sessionId,
-      });
-
-      if (error) {
-        console.error('Stripe redirection error:', error);
-        addToast(`Error: ${error.message}`, 'error');
-      }
-    } catch (error: unknown) {
-      console.error('Payment initiation failed:', error);
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      addToast(errorMessage || 'An unexpected error occurred. Please try again.', 'error');
-    } finally {
-      // This part is only reached if redirectToCheckout fails.
-      // On a successful redirect, the user navigates away from the page.
-      setIsProcessing(null);
-    }
+    // Redirect directly to Stripe payment page
+    window.location.href = paymentLinks[type];
   };
 
   const handleClose = () => {
