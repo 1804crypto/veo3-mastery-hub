@@ -18,38 +18,74 @@ const icons = {
 };
 
 const colors = {
-    success: 'bg-green-500/10 border-green-500/30 text-green-300',
-    error: 'bg-red-500/10 border-red-500/30 text-red-300',
-    info: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
+  success: 'bg-green-500/10 border-green-500/30 text-green-300',
+  error: 'bg-red-500/10 border-red-500/30 text-red-300',
+  info: 'bg-blue-500/10 border-blue-500/30 text-blue-300',
 };
 
 const Toast: React.FC<ToastProps> = ({ message, type, onDismiss }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    setIsVisible(true);
+    // Trigger enter animation
+    requestAnimationFrame(() => setIsVisible(true));
+
     const timer = setTimeout(() => {
-        setIsVisible(false);
-        setTimeout(onDismiss, 300); // Wait for fade out to finish before removing
+      setIsVisible(false);
+      setTimeout(onDismiss, 300); // Wait for fade out to finish before removing
     }, 4500);
     return () => clearTimeout(timer);
   }, [onDismiss]);
-  
+
   const handleDismiss = () => {
     setIsVisible(false);
     setTimeout(onDismiss, 300);
   };
 
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <SuccessIcon />;
+      case 'error':
+        return <ErrorIcon />;
+      case 'info':
+      default:
+        return <InfoIcon />;
+    }
+  };
+
+  const getStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-green-900/90 border-green-500/50 text-green-100 shadow-green-900/20';
+      case 'error':
+        return 'bg-red-900/90 border-red-500/50 text-red-100 shadow-red-900/20';
+      case 'info':
+      default:
+        return 'bg-blue-900/90 border-blue-500/50 text-blue-100 shadow-blue-900/20';
+    }
+  };
+
   return (
-    <div className={`
-        flex items-start p-4 rounded-lg shadow-lg border backdrop-blur-sm transition-all duration-300 ease-in-out transform w-full
-        ${colors[type]}
-        ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'}
+    <div
+      role="alert"
+      className={`
+        flex items-start p-4 rounded-xl shadow-lg border backdrop-blur-md transition-all duration-300 ease-out transform w-full
+        ${getStyles()}
+        ${isVisible ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 translate-x-8 scale-95'}
     `}>
-      <div className="flex-shrink-0 mr-3">{icons[type]}</div>
-      <p className="flex-grow text-sm font-medium">{message}</p>
-      <button onClick={handleDismiss} className="ml-4 flex-shrink-0 text-gray-400 hover:text-white transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+      <div className="flex-shrink-0 mr-3 mt-0.5 animate-pulse-slow">
+        {getIcon()}
+      </div>
+      <p className="flex-grow text-sm font-medium leading-relaxed">{message}</p>
+      <button
+        onClick={handleDismiss}
+        className="ml-4 flex-shrink-0 text-white/60 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-full"
+        aria-label="Close notification"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </button>
     </div>
   );

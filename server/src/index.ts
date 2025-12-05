@@ -1,17 +1,15 @@
+import './config/env'; // Must be first
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import authRouter from './routes/auth';
 import apiRouter from './routes/api';
+import adminRoutes from './routes/adminRoutes';
 import paymentsRouter from './routes/payments';
 import promptsRouter from './routes/prompts';
 import communityRouter from './routes/community';
 import { validateEnv } from './utils/validateEnv';
-
-// Load environment variables
-dotenv.config();
 
 // Validate environment variables before starting
 validateEnv();
@@ -67,6 +65,15 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Prevent caching of API responses
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    next();
+});
 
 // API Routes
 app.use('/api/auth', authRouter);

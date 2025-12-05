@@ -2,6 +2,7 @@ export interface User {
     id: string;
     email: string;
     subscription_status: 'free' | 'pro';
+    is_admin: boolean;
     createdAt: string;
     updatedAt: string;
 }

@@ -17,6 +17,8 @@ const PromptGenerator = lazy(() => import('./components/PromptGenerator'));
 const AccountSettings = lazy(() => import('./components/AccountSettings'));
 const CommunityHub = lazy(() => import('./components/CommunityHub'));
 const VideoStudio = lazy(() => import('./components/VideoStudio'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+import AdminRoute from './components/AdminRoute';
 
 const JourneySkeleton = () => (
   <div className="flex flex-col lg:flex-row gap-8">
@@ -236,6 +238,16 @@ const App: React.FC = () => {
                       />
                     </Suspense>
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <Suspense fallback={<div className="text-center p-8">Loading Admin...</div>}>
+                      <AdminDashboard />
+                    </Suspense>
+                  </AdminRoute>
                 }
               />
               <Route path="*" element={<Navigate to="/" replace />} />

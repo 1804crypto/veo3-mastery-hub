@@ -110,6 +110,18 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, hasAccess, onAuthClick
                 </>
               )}
             </NavLink>
+            {isAuthenticated && userEmail === 'test@example.com' && ( // Temporary check until is_admin is fully propagated
+              <NavLink to="/admin" className={navLinkClass} title="Admin Panel">
+                {({ isActive }) => (
+                  <>
+                    Admin
+                    {isActive && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-0.5 bg-blue-400 rounded-full"></span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            )}
             <NavLink to="/community" className={navLinkClass} title="Community Hub">
               {({ isActive }) => (
                 <>

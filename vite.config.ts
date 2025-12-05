@@ -27,6 +27,17 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: './src/setupTests.ts',
       include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    }
+      exclude: ['**/node_modules/**', '**/dist/**', '**/server/dist/**'],
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            utils: ['@tanstack/react-query'],
+          },
+        },
+      },
+    },
   };
 });

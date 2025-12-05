@@ -51,72 +51,63 @@ class ErrorBoundary extends Component<Props, State> {
 
     render(): ReactNode {
         if (this.state.hasError) {
-            // Custom fallback UI
-            if (this.props.fallback) {
-                return this.props.fallback;
-            }
-
-            // Default fallback UI
             return (
-                <div style={{
-                    minHeight: '100vh',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#111827',
-                    color: 'white',
-                    fontFamily: 'sans-serif',
-                    padding: '40px',
-                }}>
-                    <div style={{ maxWidth: '600px', textAlign: 'center' }}>
-                        <h1 style={{ color: '#ef4444', fontSize: '2rem', marginBottom: '1rem' }}>
-                            Oops! Something went wrong
+                <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-6 font-sans">
+                    <div className="max-w-xl w-full text-center space-y-6">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-500/10 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+
+                        <h1 className="text-3xl font-bold text-white tracking-tight">
+                            Something went wrong
                         </h1>
-                        <p style={{ color: '#9ca3af', marginBottom: '2rem' }}>
-                            We&apos;re sorry for the inconvenience. An unexpected error occurred.
+
+                        <p className="text-gray-400 text-lg max-w-md mx-auto">
+                            We apologize for the inconvenience. An unexpected error has occurred in the application.
                         </p>
 
                         {process.env.NODE_ENV === 'development' && this.state.error && (
-                            <details style={{
-                                backgroundColor: '#1f2937',
-                                padding: '1rem',
-                                borderRadius: '8px',
-                                marginBottom: '2rem',
-                                textAlign: 'left',
-                                border: '1px solid #374151',
-                            }}>
-                                <summary style={{ cursor: 'pointer', marginBottom: '1rem', color: '#f59e0b' }}>
-                                    Error Details (Development Only)
-                                </summary>
-                                <pre style={{
-                                    fontSize: '0.875rem',
-                                    overflow: 'auto',
-                                    color: '#e5e7eb',
-                                }}>
-                                    {this.state.error.toString()}
-                                    {this.state.errorInfo && this.state.errorInfo.componentStack}
-                                </pre>
-                            </details>
+                            <div className="mt-8 text-left">
+                                <details className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
+                                    <summary className="px-4 py-3 cursor-pointer bg-gray-800 hover:bg-gray-750 transition-colors text-yellow-500 font-medium flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Error Details (Development Only)
+                                    </summary>
+                                    <div className="p-4 bg-gray-900/50 overflow-auto max-h-64 text-sm font-mono text-gray-300 border-t border-gray-700">
+                                        <p className="text-red-400 mb-2 font-bold">{this.state.error.toString()}</p>
+                                        <div className="whitespace-pre-wrap opacity-75">
+                                            {this.state.errorInfo?.componentStack}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
                         )}
 
-                        <button
-                            onClick={this.handleReset}
-                            style={{
-                                padding: '12px 24px',
-                                backgroundColor: '#3b82f6',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '1rem',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                transition: 'background-color 0.2s',
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#3b82f6'}
-                        >
-                            Reload Page
-                        </button>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+                            <button
+                                onClick={this.handleReset}
+                                className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg shadow-blue-600/20 flex items-center justify-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.051M20 20v-5h-.051M9 17h6M15 7H9" />
+                                </svg>
+                                Reload Page
+                            </button>
+
+                            <a
+                                href="/"
+                                className="w-full sm:w-auto px-6 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 font-semibold rounded-lg transition-all duration-200 border border-gray-700 flex items-center justify-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Go Home
+                            </a>
+                        </div>
                     </div>
                 </div>
             );

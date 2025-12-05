@@ -9,8 +9,19 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["node", "vitest/globals"]
+    "types": [
+      "node",
+      "vitest/globals"
+    ]
   },
-  "include": ["src/**/*", "tests/**/*", "config/**/*", "prisma/**/*"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "config/**/*",
+    "prisma/**/*",
+    "src/types/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
