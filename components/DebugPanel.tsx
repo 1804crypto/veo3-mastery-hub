@@ -17,7 +17,9 @@ const DebugPanel: React.FC = () => {
     const [baseUrl, setBaseUrl] = useState('');
 
     useEffect(() => {
-        setBaseUrl(import.meta.env.VITE_API_BASE_URL || 'Default (Render)');
+        const apiUrl = import.meta.env.VITE_API_URL;
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+        setBaseUrl(apiUrl || apiBaseUrl || 'Default (Render)');
         checkHealth();
 
         // Override console.log/error to capture API logs
@@ -114,7 +116,11 @@ const DebugPanel: React.FC = () => {
             </div>
 
             <div style={{ padding: '10px', borderBottom: '1px solid #333' }}>
-                <div><strong>API URL:</strong> {baseUrl}</div>
+                <div><strong>Resolved Base URL:</strong> {baseUrl}</div>
+                <div style={{ marginTop: '5px', fontSize: '10px', color: '#999' }}>
+                    <div>VITE_API_URL: {import.meta.env.VITE_API_URL || '(not set)'}</div>
+                    <div>VITE_API_BASE_URL: {import.meta.env.VITE_API_BASE_URL || '(not set)'}</div>
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
                     <strong>Status:</strong>
                     <span style={{

@@ -2,7 +2,8 @@ export class ApiClient {
     private baseUrl: string;
 
     constructor() {
-        this.baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com';
+        // Prioritize VITE_API_URL (new fix) -> VITE_API_BASE_URL (legacy/corrupted) -> Default
+        this.baseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
         console.log('[ApiClient] Initialized with Base URL:', this.baseUrl);
     }
 
