@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Button from './ui/Button';
 import Input from './ui/Input';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { loginUser, registerUser, loginWithGoogle } from '../services/authService';
 
 export type AuthTab = 'login' | 'signup';
@@ -46,7 +46,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
 
   if (!isOpen) return null;
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -116,6 +116,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     const emailValue = emailInput?.value || email;
     const passwordValue = passwordInput?.value || password;
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailValue)) {
+      setError('Please enter a valid email address.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (passwordValue.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const result = await loginUser(emailValue, passwordValue);
       if (result.ok) {
@@ -131,10 +144,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   };
 
-  const handleForgotPasswordSubmit = (e: React.FormEvent) => {
+  const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('If an account with that email exists, a password reset link has been sent.');
-    setActiveView('login');
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.querySelector('#reset-email') as HTMLInputElement;
+    const emailValue = emailInput?.value;
+
+    if (!emailValue) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailValue }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(data.message);
+        setActiveView('login');
+      } else {
+        setError(data.message || 'Failed to send reset link.');
+      }
+    } catch (err) {
+      setError('Failed to connect to the server.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderContent = () => {

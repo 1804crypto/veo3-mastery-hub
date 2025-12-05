@@ -19,6 +19,7 @@ const CommunityHub = lazy(() => import('./components/CommunityHub'));
 const VideoStudio = lazy(() => import('./components/VideoStudio'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 import AdminRoute from './components/AdminRoute';
+import ResetPassword from './components/ResetPassword';
 
 const JourneySkeleton = () => (
   <div className="flex flex-col lg:flex-row gap-8">
@@ -187,6 +188,7 @@ const App: React.FC = () => {
                   </Suspense>
                 }
               />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/generator"
                 element={

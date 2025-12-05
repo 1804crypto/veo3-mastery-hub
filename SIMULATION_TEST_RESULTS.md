@@ -1,6 +1,6 @@
 # Simulation Test Results
 
-Generated: 2025-11-08T03:16:57.097Z
+Generated: 2025-12-05T18:53:28.497Z
 
 ## Summary
 
@@ -13,7 +13,7 @@ Generated: 2025-11-08T03:16:57.097Z
 ## Test Details
 
 ### PASS: Standalone HTML file exists
-File exists (120.22 KB)
+File exists (132.49 KB)
 
 
 ### PASS: Constants file exists
@@ -169,7 +169,7 @@ OK
 
 
 ### PASS: Consistent indentation (top-level declarations)
-Found 175 properly indented declarations
+Found 173 properly indented declarations
 
 
 

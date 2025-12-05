@@ -14,8 +14,8 @@ const prisma = new PrismaClient();
 
 // Skipping integration tests because they require a running database
 describe.skip('Auth Endpoints', () => {
-    let testUser = {
-        email: `test-${Date.now()}@example.com`,
+    const testUser = {
+        email: 'test@example.com',
         password: 'password123'
     };
 

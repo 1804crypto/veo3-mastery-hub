@@ -20,6 +20,8 @@ model User {
   created_at         DateTime  @default(now())
   updated_at         DateTime  @updatedAt
   is_admin           Boolean   @default(false)
+  reset_token        String?
+  reset_token_expiry DateTime?
 
 
   @@map("users")

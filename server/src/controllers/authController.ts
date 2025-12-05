@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/email';
 
 const prisma = new PrismaClient();
 const SALT_ROUNDS = 10;
@@ -262,6 +264,90 @@ export const logout = (req: Request, res: Response) => {
     path: '/',
   });
   res.status(200).json({ ok: true, message: 'Logout successful' });
+};
+
+
+// Forgot Password Controller
+export const forgotPassword = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ ok: false, message: 'Email is required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (!user) {
+      // Don't reveal if user exists
+      return res.status(200).json({ ok: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+    }
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        reset_token: resetToken,
+        reset_token_expiry: resetTokenExpiry,
+      },
+    });
+
+    // Create reset link
+    const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:3000';
+    const resetLink = `${clientOrigin}/reset-password?token=${resetToken}`;
+
+    // Send email (simulated)
+    await sendEmail(email, 'Password Reset Request', `Click here to reset your password: ${resetLink}`);
+
+    res.status(200).json({ ok: true, message: 'If an account with that email exists, a password reset link has been sent.' });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({ ok: false, message: 'Failed to process request' });
+  }
+};
+
+// Reset Password Controller
+export const resetPassword = async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+
+  if (!token || !password) {
+    return res.status(400).json({ ok: false, message: 'Token and password are required' });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({ ok: false, message: 'Password must be at least 6 characters long' });
+  }
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        reset_token: token,
+        reset_token_expiry: { gt: new Date() },
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({ ok: false, message: 'Invalid or expired reset token' });
+    }
+
+    const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password_hash,
+        reset_token: null,
+        reset_token_expiry: null,
+      },
+    });
+
+    res.status(200).json({ ok: true, message: 'Password reset successful. You can now login with your new password.' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ ok: false, message: 'Failed to reset password' });
+  }
 };
 
 // Helper to safely access error properties

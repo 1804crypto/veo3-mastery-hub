@@ -90,7 +90,8 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // Start the server only if run directly
-if (require.main === module) {
+// Start the server
+if (process.env.NODE_ENV !== 'test') {
     app.listen(port, () => {
         console.log(`🚀 Server is running at http://localhost:${port}`);
     });

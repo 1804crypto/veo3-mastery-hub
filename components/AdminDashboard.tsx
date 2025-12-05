@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useUser } from '../src/hooks/useUser';
 import Button from './ui/Button';
 import { useToast } from '../contexts/ToastContext';
+
 
 interface UserData {
     id: string;
@@ -14,14 +14,13 @@ interface UserData {
 }
 
 const AdminDashboard: React.FC = () => {
-    const { data: currentUser } = useUser();
     const { addToast } = useToast();
     const queryClient = useQueryClient();
 
     const fetchUsers = async (): Promise<UserData[]> => {
         const response = await fetch('/api/admin/users', {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`, // Fallback if using token, but we rely on cookies mostly
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''} `, // Fallback if using token, but we rely on cookies mostly
             },
         });
         if (!response.ok) {
@@ -38,7 +37,7 @@ const AdminDashboard: React.FC = () => {
 
     const updateUserStatusMutation = useMutation({
         mutationFn: async ({ userId, status }: { userId: string; status: 'free' | 'pro' }) => {
-            const response = await fetch(`/api/admin/users/${userId}/status`, {
+            const response = await fetch(`/ api / admin / users / ${userId}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,8 +90,8 @@ const AdminDashboard: React.FC = () => {
                                     <td className="px-6 py-4 font-medium text-white">{user.email}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.subscription_status === 'pro'
-                                                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                                                : 'bg-gray-600/20 text-gray-400 border border-gray-600/30'
+                                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                            : 'bg-gray-600/20 text-gray-400 border border-gray-600/30'
                                             }`}>
                                             {user.subscription_status.toUpperCase()}
                                         </span>

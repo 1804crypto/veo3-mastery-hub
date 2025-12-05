@@ -1,7 +1,6 @@
 
 const API_URL = 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com/api';
 let authToken = '';
-let userId = '';
 
 async function runTest(name, fn) {
     try {
@@ -36,7 +35,6 @@ async function main() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || 'Registration failed');
         if (!data.userId) throw new Error('No userId returned');
-        userId = data.userId;
     });
 
     await runTest('User Login', async () => {
@@ -78,7 +76,7 @@ async function main() {
     });
 
     // 2. Prompt History Tests
-    let promptId = '';
+    // 2. Prompt History Tests
     await runTest('Create Prompt History Item', async () => {
         const promptData = {
             prompt: 'A cinematic shot of a futuristic city',
@@ -102,8 +100,7 @@ async function main() {
             const err = await res.json();
             throw new Error(err.message || 'Failed to create prompt');
         }
-        const data = await res.json();
-        promptId = data.id;
+        await res.json();
     });
 
     // 3. Payment Tests (Public endpoint check)

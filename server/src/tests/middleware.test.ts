@@ -1,6 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Request, Response, NextFunction } from 'express';
+import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import app from '../index';
 
