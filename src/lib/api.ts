@@ -2,8 +2,8 @@ export class ApiClient {
     private baseUrl: string;
 
     constructor() {
-        // Prioritize VITE_API_URL (new fix) -> VITE_API_BASE_URL (legacy/corrupted) -> Default
-        this.baseUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+        // Prioritize VITE_APP_API_URL (verified working) -> VITE_API_URL (clean but maybe sleeping/wrong) -> VITE_API_BASE_URL (legacy)
+        this.baseUrl = import.meta.env.VITE_APP_API_URL || import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
         console.log('[ApiClient] Initialized with Base URL:', this.baseUrl);
     }
 
