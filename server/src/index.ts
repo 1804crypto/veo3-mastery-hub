@@ -63,8 +63,11 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+import { requestLogger } from './middleware/requestLogger';
+
 app.use(express.json());
 app.use(cookieParser());
+app.use(requestLogger);
 
 // Prevent caching of API responses
 app.use((req, res, next) => {

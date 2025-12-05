@@ -20,6 +20,7 @@ const VideoStudio = lazy(() => import('./components/VideoStudio'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 import AdminRoute from './components/AdminRoute';
 import ResetPassword from './components/ResetPassword';
+import DebugPanel from './components/DebugPanel';
 
 const JourneySkeleton = () => (
   <div className="flex flex-col lg:flex-row gap-8">
@@ -78,6 +79,8 @@ const StudioSkeleton = () => (
     <Skeleton className="h-[500px] w-full" />
   </div>
 );
+
+
 
 const App: React.FC = () => {
   const { addToast } = useToast();
@@ -260,6 +263,7 @@ const App: React.FC = () => {
           <p>&copy; 2025 VEO3 Mastery Hub. All rights reserved.</p>
         </footer>
       </div>
+      <DebugPanel />
     </BrowserRouter>
   );
 };

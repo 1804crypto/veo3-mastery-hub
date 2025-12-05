@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { decode, decodeAudioData } from '../utils/audio';
+import { api } from '../src/lib/api';
 
 declare global {
   interface Window {
@@ -12,28 +13,13 @@ declare global {
 const OUTPUT_SAMPLE_RATE = 24000;
 
 const generateSpeech = async (text: string) => {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
   console.log('[TTS] Generating speech for text:', text.substring(0, 50) + '...');
-  console.log('[TTS] API URL:', `${apiUrl}/api/generate-speech`);
+  const response = await api.post<{ ok: boolean; audioContent: string }>('/api/generate-speech', { text });
 
-  const response = await fetch(`${apiUrl}/api/generate-speech`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ text }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Failed to fetch audio from the server.');
-  }
-
-  const { audioContent } = await response.json();
-  if (!audioContent) {
+  if (!response.audioContent) {
     throw new Error("No audio data was returned from the API.");
   }
-  return audioContent;
+  return response.audioContent;
 };
 
 export const useTextToSpeech = () => {

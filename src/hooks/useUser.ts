@@ -1,26 +1,21 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { User } from '../types';
+import { api } from '../lib/api';
 
 interface UserResponse {
     user: User;
 }
 
 const fetchUser = async (): Promise<User | null> => {
-    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com';
-    const response = await fetch(`${apiUrl}/api/me`, {
-        method: 'GET',
-        credentials: 'include',
-    });
-
-    if (!response.ok) {
-        if (response.status === 401) {
+    try {
+        const data: UserResponse = await api.get('/api/me');
+        return data.user;
+    } catch (error: any) {
+        if (error.status === 401) {
             return null;
         }
-        throw new Error('Failed to fetch user');
+        throw error;
     }
-
-    const data: UserResponse = await response.json();
-    return data.user;
 };
 
 export const useUser = () => {

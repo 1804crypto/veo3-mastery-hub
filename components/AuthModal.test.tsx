@@ -77,7 +77,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess} // Changed prop name
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
@@ -89,7 +89,7 @@ describe('AuthModal', () => {
 
         await waitFor(() => {
             expect(authService.loginUser).toHaveBeenCalledWith('test@example.com', 'password123');
-            expect(mockOnSuccess).toHaveBeenCalled(); // Changed mock name
+            expect(mockOnSuccess).toHaveBeenCalled();
             expect(mockOnClose).toHaveBeenCalled();
         });
     });
@@ -101,18 +101,18 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
         // Switch to sign up
-        fireEvent.click(screen.getByText(/create an account/i));
+        fireEvent.click(screen.getByText('Sign Up'));
 
         // Fill out form
         fireEvent.change(screen.getByLabelText(/email/i), {
             target: { value: 'test@example.com' }
         });
-        fireEvent.change(screen.getByLabelText(/password/i), {
+        fireEvent.change(screen.getByLabelText('Password'), {
             target: { value: 'password123' }
         });
         fireEvent.change(screen.getByLabelText(/confirm password/i), {
@@ -136,7 +136,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess} // Changed prop name
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
@@ -148,7 +148,7 @@ describe('AuthModal', () => {
 
         await waitFor(() => {
             expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
-            expect(mockOnSuccess).not.toHaveBeenCalled(); // Changed mock name
+            expect(mockOnSuccess).not.toHaveBeenCalled();
         });
     });
 
@@ -159,18 +159,18 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
         // Switch to sign up
-        fireEvent.click(screen.getByText(/create an account/i));
+        fireEvent.click(screen.getByText('Sign Up'));
 
         // Fill out form
         fireEvent.change(screen.getByLabelText(/email/i), {
             target: { value: 'existing@example.com' }
         });
-        fireEvent.change(screen.getByLabelText(/password/i), {
+        fireEvent.change(screen.getByLabelText('Password'), {
             target: { value: 'password123' }
         });
         fireEvent.change(screen.getByLabelText(/confirm password/i), {
@@ -193,7 +193,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess} // Changed prop name
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
@@ -201,7 +201,7 @@ describe('AuthModal', () => {
 
         await waitFor(() => {
             expect(authService.loginWithGoogle).toHaveBeenCalledWith('mock-token');
-            expect(mockOnSuccess).toHaveBeenCalled(); // Changed mock name
+            expect(mockOnSuccess).toHaveBeenCalled();
             expect(mockOnClose).toHaveBeenCalled();
         });
     });
@@ -213,7 +213,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
@@ -230,15 +230,14 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
         fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'invalid-email' } });
         fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password123' } });
-        const loginButtons = screen.getAllByRole('button', { name: 'Login' });
-        const submitButton = loginButtons.find(button => button.getAttribute('type') === 'submit');
-        fireEvent.click(submitButton!);
+        const form = screen.getByLabelText('Email').closest('form');
+        fireEvent.submit(form!);
 
         await waitFor(() => {
             expect(screen.getByText('Please enter a valid email address.')).toBeInTheDocument();
@@ -251,7 +250,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
@@ -272,7 +271,7 @@ describe('AuthModal', () => {
             <AuthModal
                 isOpen={true}
                 onClose={mockOnClose}
-                onSuccess={mockOnSuccess}
+                onAuthSuccess={mockOnSuccess}
             />
         );
 
