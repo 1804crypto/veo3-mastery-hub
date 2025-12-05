@@ -1,7 +1,7 @@
 export interface User {
     id: string;
     email: string;
-    subscription_status: 'free' | 'pro';
+    subscription_status: 'free' | 'pro' | 'lifetime';
     is_admin: boolean;
     createdAt: string;
     updatedAt: string;

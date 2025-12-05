@@ -78,6 +78,7 @@ app.use((req, res, next) => {
 // API Routes
 app.use('/api/auth', authRouter);
 app.use('/api', apiRouter);
+app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/prompts', promptsRouter);
 app.use('/api/community', communityRouter);
