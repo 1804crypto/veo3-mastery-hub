@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useUser } from '../src/hooks/useUser';
+import { useUser } from '../hooks/useUser';
 import Skeleton from './ui/Skeleton';
 
 interface ProtectedRouteProps {

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import AbstractAvatar from './ui/icons/AbstractAvatar';
-import { useCommunityAI } from '../src/hooks/useCommunity';
+import { useCommunityAI } from '../hooks/useCommunity';
 
 interface CommunityHubProps {
     hasAccess: boolean;

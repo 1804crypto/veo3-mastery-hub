@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { generateVEO3Prompt } from '../../services/geminiService';
+import { generateVEO3Prompt } from '../services/geminiService';
 import { PromptHistoryItem } from '../types';
 import { api } from '../lib/api';
 

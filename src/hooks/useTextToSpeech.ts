@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { decode, decodeAudioData } from '../utils/audio';
-import { api } from '../src/lib/api';
+import { api } from '../lib/api';
 
 declare global {
   interface Window {

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../src/hooks/useUser';
+import { useUser } from '../hooks/useUser';
 import Skeleton from './ui/Skeleton';
 
 interface AdminRouteProps {

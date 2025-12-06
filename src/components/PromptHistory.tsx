@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePromptHistory, useDeletePromptHistory, useClearPromptHistory } from '../src/hooks/usePrompt';
+import { usePromptHistory, useDeletePromptHistory, useClearPromptHistory } from '../hooks/usePrompt';
 
 import { useToast } from '../contexts/ToastContext';
 import Button from './ui/Button';

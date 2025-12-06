@@ -10,7 +10,7 @@ import ProRoute from './components/ProRoute';
 import { useToast } from './contexts/ToastContext';
 import { logoutUser } from './services/authService';
 
-import { useUser, useInvalidateUser, useSetUser } from './src/hooks/useUser';
+import { useUser, useInvalidateUser, useSetUser } from './hooks/useUser';
 
 const LearningJourney = lazy(() => import('./components/LearningJourney'));
 const PromptGenerator = lazy(() => import('./components/PromptGenerator'));

@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Button from './ui/Button';
 import Card from './ui/Card';
 import { useToast } from '../contexts/ToastContext';
-import { useDownloadVideo } from '../src/hooks/useVideo';
+import { useDownloadVideo } from '../hooks/useVideo';
 
 // Define the AI Studio interface on Window
 declare global {

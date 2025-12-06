@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGeneratePrompt, useAddPromptHistory } from '../src/hooks/usePrompt';
+import { useGeneratePrompt, useAddPromptHistory } from '../hooks/usePrompt';
 import Button from './ui/Button';
 import CodeDisplay from './ui/CodeDisplay';
-import { VEO3Prompt, VEO3InnerPrompt, PromptHistoryItem } from '../src/types';
+import { VEO3Prompt, VEO3InnerPrompt, PromptHistoryItem } from '../types';
 import { useToast } from '../contexts/ToastContext';
 import PromptHistory from './PromptHistory';
 import Tooltip from './ui/Tooltip';
