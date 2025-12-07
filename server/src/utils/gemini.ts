@@ -29,7 +29,7 @@ export async function generatePromptFromIdea(
   style?: string, // style and length are kept for potential future use
   length?: string
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs'; || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs';
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs';
 
   // If no API key is present, return a mocked response for development/testing
   if (!apiKey) {
