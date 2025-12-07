@@ -18,12 +18,12 @@ interface OptionalEnvVars {
     CLIENT_ORIGIN?: string;
     CLIENT_SUCCESS_URL?: string;
     CLIENT_CANCEL_URL?: string;
+    DATABASE_URL?: string;
+    JWT_SECRET?: string;
 }
 
 export function validateEnv(): void {
     const requiredVars: (keyof RequiredEnvVars)[] = [
-        'DATABASE_URL',
-        'JWT_SECRET',
         'NODE_ENV',
         'PORT',
     ];
@@ -50,6 +50,8 @@ export function validateEnv(): void {
         'GOOGLE_CLIENT_ID',
         'STRIPE_SECRET_KEY',
         'GEMINI_API_KEY',
+        'DATABASE_URL',
+        'JWT_SECRET',
     ];
 
     for (const varName of optionalVars) {
