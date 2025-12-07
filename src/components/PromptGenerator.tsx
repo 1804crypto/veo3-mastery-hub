@@ -185,7 +185,11 @@ const InteractivePromptEditor: React.FC<{
     if (enhancingKey) return;
     setEnhancingKey(key);
     try {
-      const enhancedText = await enhancePrompt({ component: key, currentValue: editableData[key] });
+      const enhancedText = await enhancePrompt({
+        component: key,
+        currentValue: editableData[key],
+        context: JSON.stringify(editableData)
+      });
       handleChange(key, enhancedText);
       addToast('Enhanced with AI Ghostwriter!', 'success');
     } catch (error) {
