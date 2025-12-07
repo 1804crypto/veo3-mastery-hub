@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGeneratePrompt, useAddPromptHistory } from '../hooks/usePrompt';
+import { useGeneratePrompt, useAddPromptHistory, useEnhancePrompt } from '../hooks/usePrompt';
 import Button from './ui/Button';
 import CodeDisplay from './ui/CodeDisplay';
 import { VEO3Prompt, VEO3InnerPrompt, PromptHistoryItem } from '../types';
@@ -75,6 +75,12 @@ const DragHandleIcon = () => (
 );
 const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>;
 const LightbulbIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>;
+const MagicWandIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+  </svg>
+);
+
 
 // Real-time Validation Logic
 type ValidationResult = {
@@ -137,13 +143,16 @@ const InteractivePromptEditor: React.FC<{
   const [editableData, setEditableData] = useState(promptData);
   const [componentOrder, setComponentOrder] = useState<Array<keyof VEO3InnerPrompt>>([]);
   const [validationFeedback, setValidationFeedback] = useState<Record<string, ValidationResult>>({});
+  const [enhancingKey, setEnhancingKey] = useState<string | null>(null);
+
+  const { mutateAsync: enhancePrompt } = useEnhancePrompt();
+  const { addToast } = useToast();
 
   // Drag and Drop state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
-
 
   useEffect(() => {
     const initialOrder = Object.keys(promptData) as Array<keyof VEO3InnerPrompt>;
@@ -170,6 +179,20 @@ const InteractivePromptEditor: React.FC<{
       reorderedData[k] = newData[k];
     });
     onUpdate(reorderedData);
+  };
+
+  const handleEnhance = async (key: keyof VEO3InnerPrompt) => {
+    if (enhancingKey) return;
+    setEnhancingKey(key);
+    try {
+      const enhancedText = await enhancePrompt({ component: key, currentValue: editableData[key] });
+      handleChange(key, enhancedText);
+      addToast('Enhanced with AI Ghostwriter!', 'success');
+    } catch (error) {
+      addToast('Failed to enhance text.', 'error');
+    } finally {
+      setEnhancingKey(null);
+    }
   };
 
   const handleDragSort = () => {
@@ -217,6 +240,7 @@ const InteractivePromptEditor: React.FC<{
     <div className="space-y-4">
       {componentOrder.map((key, index) => {
         const { borderColor, feedbackElement } = getValidationUI(key);
+        const isEnhancing = enhancingKey === key;
 
         return (
           <div
@@ -242,19 +266,37 @@ const InteractivePromptEditor: React.FC<{
             {dragOverIndex === index && draggedIndex !== index && (
               <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 rounded-full" />
             )}
-            <div className="flex items-center mb-2">
-              <div draggable><DragHandleIcon /></div>
-              <div className="flex items-center gap-2 ml-2">
-                <label className="block text-sm font-medium text-blue-300">{key}</label>
-                <Tooltip content={tooltipContent[key]}>
-                  <InfoIcon />
-                </Tooltip>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center">
+                <div draggable><DragHandleIcon /></div>
+                <div className="flex items-center gap-2 ml-2">
+                  <label className="block text-sm font-medium text-blue-300">{key}</label>
+                  <Tooltip content={tooltipContent[key]}>
+                    <InfoIcon />
+                  </Tooltip>
+                </div>
               </div>
+              <button
+                onClick={() => handleEnhance(key)}
+                disabled={isEnhancing}
+                className={`p-1 rounded-full transition-colors ${isEnhancing ? 'text-blue-400 animate-pulse' : 'text-gray-400 hover:text-blue-400 hover:bg-blue-500/20'}`}
+                title="Enhance with AI Ghostwriter"
+              >
+                {isEnhancing ? (
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <MagicWandIcon />
+                )}
+              </button>
             </div>
             <textarea
               value={editableData[key]}
               onChange={(e) => handleChange(key, e.target.value)}
-              className={`w-full h-24 p-2 bg-gray-900 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors text-sm ${borderColor}`}
+              disabled={isEnhancing}
+              className={`w-full h-24 p-2 bg-gray-900 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none transition-colors text-sm ${borderColor} ${isEnhancing ? 'opacity-50 cursor-wait' : ''}`}
             />
             {feedbackElement}
           </div>

@@ -75,3 +75,15 @@ export const useClearPromptHistory = () => {
         },
     });
 };
+
+export const useEnhancePrompt = () => {
+    return useMutation({
+        mutationFn: async ({ component, currentValue }: { component: string; currentValue: string }) => {
+            const response = await api.post<{ ok: boolean; enhancedValue: string }>('/api/prompts/enhance', {
+                component,
+                currentValue
+            });
+            return response.enhancedValue;
+        }
+    });
+};

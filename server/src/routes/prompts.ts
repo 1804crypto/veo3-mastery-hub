@@ -8,5 +8,6 @@ router.get('/', verifyAuth, getHistory);
 router.post('/', verifyAuth, addHistoryItem);
 router.delete('/:id', verifyAuth, deleteHistoryItem);
 router.delete('/', verifyAuth, clearHistory);
+router.post('/enhance', verifyAuth, enhancePromptComponent);
 
 export default router;

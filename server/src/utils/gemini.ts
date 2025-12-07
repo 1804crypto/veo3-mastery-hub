@@ -120,3 +120,4 @@ export async function generatePromptFromIdea(
     throw new Error('Failed to generate prompt from Gemini API.');
   }
 }
+
