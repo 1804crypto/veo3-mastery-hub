@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getHistory, addHistoryItem, deleteHistoryItem, clearHistory } from '../controllers/promptController';
+import { getHistory, addHistoryItem, deleteHistoryItem, clearHistory, enhancePromptComponent } from '../controllers/promptController';
 import { verifyAuth } from '../middleware/auth';
 
 const router = Router();

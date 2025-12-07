@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { generatePromptFromIdea } from '../utils/gemini';
+import { generatePromptFromIdea, enhanceText } from '../utils/gemini';
 
 const prisma = new PrismaClient();
 
@@ -127,4 +127,22 @@ export const clearHistory = async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json({ ok: false, message: 'Failed to clear history' });
   }
+};
+export const enhancePromptComponent = async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ ok: false, message: 'Unauthorized' });
+
+    const { text, type, context } = req.body;
+
+    if (!text || typeof text !== 'string') {
+        return res.status(400).json({ ok: false, message: 'Text is required' });
+    }
+
+    try {
+        const enhancedText = await enhanceText(text, type, context);
+        res.status(200).json({ ok: true, enhancedText });
+    } catch (error) {
+        console.error('Error enhancing prompt component:', error);
+        res.status(500).json({ ok: false, message: 'Failed to enhance text' });
+    }
 };

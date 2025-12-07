@@ -121,3 +121,41 @@ export async function generatePromptFromIdea(
   }
 }
 
+
+const ENHANCE_PROMPT = `
+You are a "Ghostwriter" for a high-end film director. Your job is to take a specific component of a VEO3 video prompt (Subject, Action, Scene, Style, Dialogue, or Sounds) and rewrite it to be more cinematic, detailed, and technically precise for AI video generation.
+
+Rules:
+1.  **Subject:** Add 5+ visually descriptive attributes (age, texture, lighting on skin).
+2.  **Action:** Use physics-based verbs (heaving, shattering, gliding) and precise timing.
+3.  **Scene:** Describe 3 layers of depth (foreground, mid, background).
+4.  **Style:** Specify camera gear (e.g., "Arri Alexa, 35mm prime"), lighting ("Rembrandt", "volumetric fog"), and color ("teal & orange").
+5.  **Dialogue:** Format strictly as (Character Name): "Line of dialogue". No play-script styling.
+6.  **Sounds:** Separate Ambience, SFX, and Score.
+7.  **Goal:** Make the text 3x more detailed but focused on VISUAL/AUDIO output.
+8.  **Output:** Return ONLY the rewritten text. No conversational filler or markdown.
+`;
+
+export async function enhanceText(
+  text: string,
+  type: string, // e.g., 'Subject', 'Action'
+  context: string // The full current prompt for context
+): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs';
+  if (!apiKey) return `(Enhanced) ${text}`;
+
+  try {
+    const ai = new GoogleGenAI({ apiKey });
+    const fullPrompt = `${ENHANCE_PROMPT}\n\nContext of full prompt: ${context}\n\nComponent to enhance: ${type}\nOriginal text: "${text}"\n\nRewrite this ${type} to be cinematic and detailed:`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp', // Fast model for real-time edits
+      contents: fullPrompt,
+    });
+
+    return response.text?.trim() || text;
+  } catch (error) {
+    console.error('Gemini verify error:', error);
+    return text; // Fallback to original
+  }
+}
