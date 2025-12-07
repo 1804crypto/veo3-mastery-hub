@@ -21,8 +21,7 @@ export const generatePrompt = async (req: Request, res: Response) => {
   }
 
   if (!userId) {
-    // This should not happen if verifyAuth middleware is working correctly
-    return res.status(401).json({ ok: false, message: 'Please sign in to generate prompts. You get 5 free generations per day!' });
+    console.log(`[${new Date().toISOString()}] Prompt generation request for guest user`);
   }
 
   // Log request metadata, avoiding logging PII (the full idea text)
@@ -129,20 +128,20 @@ export const clearHistory = async (req: Request, res: Response) => {
   }
 };
 export const enhancePromptComponent = async (req: Request, res: Response) => {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ ok: false, message: 'Unauthorized' });
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ ok: false, message: 'Unauthorized' });
 
-    const { text, type, context } = req.body;
+  const { text, type, context } = req.body;
 
-    if (!text || typeof text !== 'string') {
-        return res.status(400).json({ ok: false, message: 'Text is required' });
-    }
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ ok: false, message: 'Text is required' });
+  }
 
-    try {
-        const enhancedText = await enhanceText(text, type, context);
-        res.status(200).json({ ok: true, enhancedText });
-    } catch (error) {
-        console.error('Error enhancing prompt component:', error);
-        res.status(500).json({ ok: false, message: 'Failed to enhance text' });
-    }
+  try {
+    const enhancedText = await enhanceText(text, type, context);
+    res.status(200).json({ ok: true, enhancedText });
+  } catch (error) {
+    console.error('Error enhancing prompt component:', error);
+    res.status(500).json({ ok: false, message: 'Failed to enhance text' });
+  }
 };

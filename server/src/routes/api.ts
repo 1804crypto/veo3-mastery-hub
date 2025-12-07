@@ -12,7 +12,11 @@ router.get('/me', verifyAuth, getCurrentUser);
 
 // This endpoint is protected and rate-limited.
 // Note: Authentication is required - users must sign up/login first
-router.post('/generate-prompt', verifyAuth, rateLimiter, generatePrompt);
+import { optionalAuth } from '../middleware/optionalAuth';
+
+// This endpoint is protected and rate-limited.
+// Note: Authentication is optional - guests get 5 free generations per day (tracked on frontend), rate limited by IP on backend
+router.post('/generate-prompt', optionalAuth, rateLimiter, generatePrompt);
 
 // This endpoint is public for the learning journey.
 router.post('/generate-speech', generateSpeech);
