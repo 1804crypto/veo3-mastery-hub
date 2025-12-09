@@ -19,8 +19,9 @@ const port = process.env.PORT || 8080;
 
 // Security Middleware
 app.use(helmet({
-    contentSecurityPolicy: false, // Allow inline scripts for development
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
 }));
 
 // CORS configuration - Allow localhost for development

@@ -19,7 +19,7 @@ export const generateSpeech = async (req: Request, res: Response) => {
     try {
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-preview-tts',
+            model: 'gemini-2.0-flash-exp',
             contents: [{ parts: [{ text }] }],
             config: {
                 responseModalities: [Modality.AUDIO],
