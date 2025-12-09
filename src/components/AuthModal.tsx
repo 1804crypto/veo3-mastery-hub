@@ -61,6 +61,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
       }
     } catch (err) {
       setError('Failed to connect to the server. Please try again.');
+      console.error('[AuthModal] Google Auth Error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -91,6 +92,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
         const loginResult = await loginUser(emailValue, passwordValue);
         if (loginResult.ok) {
           onAuthSuccess();
+          onClose();
         } else {
           setError(loginResult.message || 'Registration succeeded, but login failed.');
         }
@@ -210,7 +212,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
                 onError={() => setError('Google Sign-In failed')}
                 theme="filled_black"
                 shape="pill"
-                width="100%"
+                width={320}
               />
             </div>
 
