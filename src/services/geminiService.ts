@@ -1,4 +1,4 @@
-import { VEO3Prompt } from "../src/types";
+import { VEO3Prompt } from "../types";
 
 export async function generateVEO3Prompt(idea: string): Promise<VEO3Prompt> {
   try {
