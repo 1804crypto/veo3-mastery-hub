@@ -3,7 +3,7 @@
 We found two critical issues preventing your app from working. Please follow these steps in your browser:
 
 ## 1. Fix Render Backend (Service Not Found)
-The URL `https://veo3-mastery-hub-api.onrender.com` is returning "No Server". This means the service name is wrong or the deployment failed/is suspended.
+The URL `https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com` is returning "No Server". This means the service name is wrong or the deployment failed/is suspended.
 
 **Action:**
 1. Go to [Render Dashboard](https://dashboard.render.com).
@@ -24,12 +24,12 @@ Your frontend is trying to connect to:
 2. Select your site (`veo3-mastery-hub`).
 3. Go to **Site configuration** -> **Environment variables**.
 4. Find `VITE_API_BASE_URL`.
-5. Click **Edit** and change it to your *actual* Render URL (e.g., `https://veo3-mastery-hub-api.onrender.com`).
+5. Click **Edit** and change it to your *actual* Render URL (e.g., `https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com`).
    - **Make sure there is no trailing slash.**
 6. Save the variable.
 7. Go to the **Deploys** tab and click **Trigger deploy** -> **Deploy site**.
 
 ## 3. Verify
 Once both are done:
-1. Visit your Render URL + `/health` (e.g., `https://veo3-mastery-hub-api.onrender.com/health`) -> Should say "Server is healthy".
+1. Visit your Render URL + `/health` (e.g., `https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com/health`) -> Should say "Server is healthy".
 2. Visit your Netlify URL -> Should load without console errors.

@@ -189,7 +189,7 @@ const VideoStudio: React.FC = () => {
                             </Button>
                         </div>
                         <p className="mt-3 text-xs text-gray-500 text-left">
-                            Don't have a key?{' '}
+                            Don&apos;t have a key?{' '}
                             <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline">
                                 Get one from Google AI Studio
                             </a>

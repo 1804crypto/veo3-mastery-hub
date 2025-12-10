@@ -162,34 +162,71 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const googleAuth = async (req: Request, res: Response) => {
-  const { token: googleToken } = req.body;
+  // Support both flows:
+  // 1. id_token flow (legacy): { token: "..." }
+  // 2. implicit flow (new): { accessToken: "...", userInfo: {...} }
+  const { token: googleIdToken, accessToken, userInfo } = req.body;
 
-  if (!googleToken) {
-    return res.status(400).json({ ok: false, message: 'Google token is required' });
+  console.log('[GoogleAuth] Request received');
+  console.log(`[GoogleAuth] Flow type: ${accessToken ? 'implicit (access_token)' : 'id_token'}`);
+  console.log(`[GoogleAuth] Configured Client ID: ${GOOGLE_CLIENT_ID ? GOOGLE_CLIENT_ID.substring(0, 10) + '...' : 'MISSING'}`);
+
+  let email: string | undefined;
+  let googleId: string | undefined;
+  let name: string | undefined;
+  let picture: string | undefined;
+
+  // Handle implicit flow (access_token + userInfo)
+  if (accessToken && userInfo) {
+    console.log('[GoogleAuth] Using implicit flow with userInfo');
+
+    // userInfo comes directly from Google's userinfo endpoint, already validated by Google
+    email = userInfo.email;
+    googleId = userInfo.sub;
+    name = userInfo.name;
+    picture = userInfo.picture;
+
+    if (!email) {
+      return res.status(400).json({ ok: false, message: 'Email is required from Google account' });
+    }
   }
+  // Handle id_token flow (legacy)
+  else if (googleIdToken) {
+    console.log('[GoogleAuth] Using id_token flow');
 
-  if (!googleClient) {
-    return res.status(500).json({ ok: false, message: 'Google OAuth is not configured' });
+    if (!googleClient) {
+      return res.status(500).json({ ok: false, message: 'Google OAuth is not configured' });
+    }
+
+    try {
+      // Verify the Google token
+      const ticket = await googleClient.verifyIdToken({
+        idToken: googleIdToken,
+        audience: GOOGLE_CLIENT_ID!,
+      });
+
+      const payload = ticket.getPayload();
+      if (!payload) {
+        return res.status(401).json({ ok: false, message: 'Invalid Google token' });
+      }
+
+      email = payload.email;
+      googleId = payload.sub;
+      name = payload.name;
+      picture = payload.picture;
+
+      if (!email) {
+        return res.status(400).json({ ok: false, message: 'Google account email is required' });
+      }
+    } catch (error) {
+      console.error('[GoogleAuth] Token verification failed:', error);
+      return res.status(401).json({ ok: false, message: 'Google token verification failed' });
+    }
+  } else {
+    return res.status(400).json({ ok: false, message: 'Google token or accessToken with userInfo is required' });
   }
 
   try {
-    // Verify the Google token
-    const ticket = await googleClient.verifyIdToken({
-      idToken: googleToken,
-      audience: GOOGLE_CLIENT_ID!,
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload) {
-      return res.status(401).json({ ok: false, message: 'Invalid Google token' });
-    }
-
-    const { sub: googleId, email, name, picture } = payload;
-
-    if (!email) {
-      return res.status(400).json({ ok: false, message: 'Google account email is required' });
-    }
-
     // Check if user exists by email or google_id
     let user = await prisma.user.findFirst({
       where: {
@@ -212,10 +249,10 @@ export const googleAuth = async (req: Request, res: Response) => {
       // Create new user with Google OAuth
       user = await prisma.user.create({
         data: {
-          email,
+          email: email!,
           ...(googleId ? { google_id: googleId } : {}),
           // password_hash is optional in schema, so we don't need to set it
-          subscription_status: ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'].includes(email.toLowerCase()) ? 'pro' : 'free',
+          subscription_status: ['freeemallfilms@gmail.com', 'testuser1764850225@example.com'].includes(email!.toLowerCase()) ? 'pro' : 'free',
         },
       });
     }
