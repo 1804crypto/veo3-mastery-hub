@@ -58,9 +58,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
         } else {
           setError(result.message || 'Google authentication failed.');
         }
+      } else {
+        setError('No credential received from Google. Please try again.');
       }
     } catch (err) {
-      setError('Failed to connect to the server. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Connection error: ${errorMessage}`);
       console.error('[AuthModal] Google Auth Error:', err);
     } finally {
       setIsLoading(false);
