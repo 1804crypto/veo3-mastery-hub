@@ -1,8 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { VEO3Prompt } from '../types/shared';
-
-
-
+import { getCachedResponse, setCachedResponse } from './cache';
 const META_PROMPT = `
 You are "Cine-Maestro," an expert Hollywood film director and VEO3 prompt engineer. Your goal is to transform a user's raw video idea into a hyper-detailed, professional, 7-component JSON prompt for the VEO3 model.
 
@@ -53,6 +51,13 @@ export async function generatePromptFromIdea(
     return JSON.stringify(mockPrompt);
   }
 
+  // Check cache first
+  const cached = getCachedResponse<string>('prompt', idea);
+  if (cached) {
+    console.log('[Gemini] Returning cached prompt for idea');
+    return cached;
+  }
+
   try {
     const ai = new GoogleGenAI({ apiKey });
     const fullPrompt = `${META_PROMPT}"${idea}"`;
@@ -85,7 +90,14 @@ export async function generatePromptFromIdea(
       }
     });
 
-    return response.text || '';
+    const result = response.text || '';
+
+    // Cache the successful response
+    if (result) {
+      setCachedResponse('prompt', idea, result);
+    }
+
+    return result;
   } catch (error: unknown) {
     console.error('Error calling Gemini API:', error);
 

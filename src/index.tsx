@@ -5,6 +5,10 @@ import { ToastProvider } from './contexts/ToastContext';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/queryClient';
 import ErrorBoundary from './components/ErrorBoundary';
+import { initSentry } from './lib/sentry';
+
+// Initialize error monitoring
+initSentry();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
