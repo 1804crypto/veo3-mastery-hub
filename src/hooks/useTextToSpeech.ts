@@ -13,7 +13,6 @@ declare global {
 const OUTPUT_SAMPLE_RATE = 24000;
 
 const generateSpeech = async (text: string) => {
-  console.log('[TTS] Generating speech for text:', text.substring(0, 50) + '...');
   const response = await api.post<{ ok: boolean; audioContent: string }>('/api/generate-speech', { text });
 
   if (!response.audioContent) {

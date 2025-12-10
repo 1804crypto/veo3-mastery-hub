@@ -12,7 +12,6 @@ interface AuthResponse {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hubveo3-mastery-hub-api.onrender.com';
-console.log('AuthService initialized with API_BASE_URL:', API_BASE_URL);
 
 export const registerUser = async (email: string, password: string): Promise<AuthResponse> => {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
@@ -43,7 +42,6 @@ interface GoogleUserInfo {
 
 export const loginWithGoogle = async (token: string, userInfo?: GoogleUserInfo): Promise<AuthResponse> => {
     try {
-        console.log(`[AuthService] Sending Google login request to: ${API_BASE_URL}/api/auth/google`);
 
         // If userInfo is provided, we're using the implicit flow (access_token)
         // Otherwise, we're using the id_token flow
