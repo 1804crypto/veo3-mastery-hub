@@ -193,6 +193,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   };
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      handleGoogleLogin(tokenResponse.access_token);
+    },
+    onError: () => {
+      setError('Google Sign-In failed. Please try again.');
+    },
+    flow: 'implicit',
+  });
+
   const renderContent = () => {
     switch (activeView) {
       case 'forgotPassword':
@@ -217,17 +227,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
       case 'signup':
       default: {
         const isLogin = activeView === 'login';
-
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const googleLogin = useGoogleLogin({
-          onSuccess: (tokenResponse) => {
-            handleGoogleLogin(tokenResponse.access_token);
-          },
-          onError: () => {
-            setError('Google Sign-In failed. Please try again.');
-          },
-          flow: 'implicit',
-        });
 
         return (
           <div className="space-y-4">
