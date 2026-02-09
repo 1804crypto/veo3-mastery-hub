@@ -34,24 +34,6 @@ export const generatePrompt = async (req: Request, res: Response) => {
     console.error('Error in prompt generation controller:', error);
 
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStatus = (error as { status?: number })?.status; // Safe access for status if it exists
-
-    // Check for Gemini API quota errors
-    if (errorMessage.includes('quota') || errorMessage.includes('429') || errorStatus === 429) {
-      return res.status(429).json({
-        ok: false,
-        message: 'We\'ve reached our free tier limit for today. Please try again tomorrow, or upgrade to Pro for unlimited access!'
-      });
-    }
-
-    // Check for API key errors
-    if (errorMessage.includes('API key') || errorMessage.includes('authentication')) {
-      return res.status(500).json({
-        ok: false,
-        message: 'Service configuration error. Please contact support.'
-      });
-    }
-
 
     res.status(500).json({
       ok: false,

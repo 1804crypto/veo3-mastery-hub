@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 
-// Rate limits by tier
+// Rate limits by tier (Daily limits)
 const RATE_LIMITS = {
-  guest: 20,      // 20 requests/hour for guests (by IP)
-  free: 30,       // 30 requests/hour for free users
-  pro: 100,       // 100 requests/hour for Pro users
+  guest: 5,       // 5 requests/day for guests (by IP)
+  free: 5,        // 5 requests/day for free users
+  pro: 10000,     // Effectively unlimited for Pro users
 };
 
-const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 // In-memory store for request timestamps
 // Key: "user:{userId}" or "ip:{ipAddress}"
@@ -34,24 +34,35 @@ function getIdentifier(req: Request): string {
   return `ip:${ip}`;
 }
 
+const cleanOldTimestamps = (identifier: string, windowStart: number) => {
+  const timestamps = requestStore.get(identifier) || [];
+  const recentTimestamps = timestamps.filter(ts => ts > windowStart);
+  if (recentTimestamps.length === 0) {
+    requestStore.delete(identifier);
+  } else {
+    requestStore.set(identifier, recentTimestamps);
+  }
+  return recentTimestamps;
+};
+
 export const rateLimiter = (req: Request, res: Response, next: NextFunction) => {
   const identifier = getIdentifier(req);
   const limit = getRateLimit(req.user);
   const now = Date.now();
-  const windowStart = now - ONE_HOUR_IN_MS;
+  const windowStart = now - ONE_DAY_IN_MS;
 
   // Get current timestamps and filter out old ones
-  const timestamps = requestStore.get(identifier) || [];
-  const recentTimestamps = timestamps.filter(ts => ts > windowStart);
+  const recentTimestamps = cleanOldTimestamps(identifier, windowStart);
 
   if (recentTimestamps.length >= limit) {
-    const resetTime = Math.ceil((recentTimestamps[0] + ONE_HOUR_IN_MS - now) / 1000 / 60);
+    const oldestTimestamp = recentTimestamps[0];
+    const resetTime = Math.ceil((oldestTimestamp + ONE_DAY_IN_MS - now) / 1000 / 60 / 60); // Hours
     return res.status(429).json({
       ok: false,
-      message: `Rate limit exceeded. Try again in ${resetTime} minutes.`,
+      message: `Daily rate limit exceeded. Try again in ${resetTime} hours.`,
       limit,
       remaining: 0,
-      resetInMinutes: resetTime,
+      resetInHours: resetTime,
     });
   }
 
@@ -68,27 +79,28 @@ export const rateLimiter = (req: Request, res: Response, next: NextFunction) => 
 
 /**
  * Stricter rate limiter for expensive AI operations
+ * For now, we align this with the main rate limiter but keep it separate for future tracking.
  */
 export const aiRateLimiter = (req: Request, res: Response, next: NextFunction) => {
   const identifier = getIdentifier(req);
-  const baseLimit = getRateLimit(req.user);
-  // AI operations get 1/3 of the base limit
-  const limit = Math.max(3, Math.floor(baseLimit / 3));
+  // Same logic as main limiter for now, based on the requirement "restrict free users to 5 generations per day"
+  // which implies the AI generation IS the main constraint.
+  const limit = getRateLimit(req.user);
   const now = Date.now();
-  const windowStart = now - ONE_HOUR_IN_MS;
+  const windowStart = now - ONE_DAY_IN_MS;
 
   const key = `ai:${identifier}`;
-  const timestamps = requestStore.get(key) || [];
-  const recentTimestamps = timestamps.filter(ts => ts > windowStart);
+  const recentTimestamps = cleanOldTimestamps(key, windowStart);
 
   if (recentTimestamps.length >= limit) {
-    const resetTime = Math.ceil((recentTimestamps[0] + ONE_HOUR_IN_MS - now) / 1000 / 60);
+    const oldestTimestamp = recentTimestamps[0];
+    const resetTime = Math.ceil((oldestTimestamp + ONE_DAY_IN_MS - now) / 1000 / 60 / 60);
     return res.status(429).json({
       ok: false,
-      message: `AI generation limit exceeded (${limit}/hour). Upgrade to Pro for more.`,
+      message: `Daily AI generation limit exceeded (${limit}/day). Upgrade to Pro for unlimited access.`,
       limit,
       remaining: 0,
-      resetInMinutes: resetTime,
+      resetInHours: resetTime,
     });
   }
 

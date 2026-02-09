@@ -5,6 +5,7 @@ declare module 'express' {
         user?: {
             id: string;
             email: string;
+            subscriptionStatus?: string;
         };
     }
 }

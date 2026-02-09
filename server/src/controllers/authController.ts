@@ -19,14 +19,14 @@ if (!JWT_SECRET) {
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
 // Helper function to set auth cookie
-const setAuthCookie = (res: Response, userId: string, email: string) => {
-  const token = jwt.sign({ id: userId, email }, JWT_SECRET!, { expiresIn: '1d' });
+const setAuthCookie = (res: Response, userId: string, email: string, subscriptionStatus: string) => {
+  const token = jwt.sign({ id: userId, email, subscriptionStatus }, JWT_SECRET!, { expiresIn: '1d' });
   const isProduction = process.env.NODE_ENV === 'production';
 
   res.cookie('token', token, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? 'none' : 'lax',
+    sameSite: isProduction ? 'none' : 'lax', // Use 'none' in production for cross-site cookie usage if needed, or 'strict' if same domain
     maxAge: 24 * 60 * 60 * 1000,
     path: '/',
   });
@@ -78,7 +78,7 @@ export const register = async (req: Request, res: Response) => {
     });
 
     // Auto-login after registration
-    setAuthCookie(res, user.id, user.email);
+    setAuthCookie(res, user.id, user.email, user.subscription_status);
 
     res.status(201).json({ ok: true, message: 'Account created successfully! Welcome!', userId: user.id });
   } catch (error: unknown) {
@@ -144,7 +144,7 @@ export const login = async (req: Request, res: Response) => {
       }
     }
 
-    setAuthCookie(res, user.id, user.email);
+    setAuthCookie(res, user.id, user.email, user.subscription_status);
 
     res.status(200).json({ ok: true, message: 'Login successful' });
   } catch (error: unknown) {
@@ -273,7 +273,7 @@ export const googleAuth = async (req: Request, res: Response) => {
       }
     }
 
-    setAuthCookie(res, user.id, user.email);
+    setAuthCookie(res, user.id, user.email, user.subscription_status);
 
     res.status(200).json({
       ok: true,
@@ -301,6 +301,26 @@ export const logout = (req: Request, res: Response) => {
     path: '/',
   });
   res.status(200).json({ ok: true, message: 'Logout successful' });
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return res.status(401).json({ ok: false, message: 'Unauthorized' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return res.status(404).json({ ok: false, message: 'User not found' });
+    }
+
+    setAuthCookie(res, user.id, user.email, user.subscription_status);
+    res.status(200).json({ ok: true, message: 'Token refreshed', user: { id: user.id, email: user.email, subscriptionStatus: user.subscription_status } });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    res.status(500).json({ ok: false, message: 'Failed to refresh token' });
+  }
 };
 
 

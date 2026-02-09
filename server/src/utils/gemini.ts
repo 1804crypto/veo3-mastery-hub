@@ -6,7 +6,8 @@ const ZAI_API_KEY = process.env.ZAI_API_KEY;
 // Using GLM-4-Flash which is often the most reliable/fast model tier available on the generic endpoint.
 // If this fails, the robust fallback system will kick in.
 const ZAI_MODEL = 'glm-4.5-air';
-const ZAI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+// Updated to the dedicated GLM Coding Plan endpoint as per VEO3 Launch Assistant notebook.
+const ZAI_ENDPOINT = 'https://api.z.ai/api/coding/paas/v4/chat/completions';
 
 const META_PROMPT = `
 You are "Cine-Maestro," an expert Hollywood film director and VEO3 prompt engineer. Your goal is to transform a user's raw video idea into a hyper-detailed, professional, 7-component JSON prompt for the VEO3 model.

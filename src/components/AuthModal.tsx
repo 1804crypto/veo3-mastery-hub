@@ -166,6 +166,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
       setError('Google Sign-In failed. Please try again.');
     },
     flow: 'implicit',
+    // Note: For implicit flow, the 'Authorized Javascript Origins' must be configured in Google Cloud Console.
+    // 'redirect_uri' is not used in this flow.
   });
 
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
