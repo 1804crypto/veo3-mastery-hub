@@ -2,8 +2,12 @@ export class ApiClient {
     private baseUrl: string;
 
     constructor() {
-        // Prioritize VITE_APP_API_URL (verified working) -> VITE_API_URL (clean but maybe sleeping/wrong) -> VITE_API_BASE_URL (legacy)
-        this.baseUrl = import.meta.env.VITE_APP_API_URL || import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://veo3-mastery-hub-api.onrender.com';
+        // Prioritize VITE_API_BASE_URL (from env).
+        // If not set, check dev/prod mode:
+        // - PROD: default to '/api' (serverless functions on same domain)
+        // - DEV: default to 'http://localhost:5000'
+        const envUrl = import.meta.env.VITE_APP_API_URL || import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
+        this.baseUrl = envUrl || (import.meta.env.PROD ? '/api' : 'http://localhost:5000');
     }
 
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
