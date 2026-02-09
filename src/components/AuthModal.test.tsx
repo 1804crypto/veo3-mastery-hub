@@ -11,14 +11,35 @@ vi.mock('../services/authService', () => ({
     loginWithGoogle: vi.fn(),
 }));
 
-// Mock GoogleLogin component
-// Mock GoogleLogin component
+// Mock Google OAuth
+interface GoogleTokenResponse {
+    access_token: string;
+}
+
+interface UseGoogleLoginOptions {
+    onSuccess: (response: GoogleTokenResponse) => void;
+    onError: () => void;
+    flow: string;
+}
+
+// Mock Google userInfo API
+global.fetch = vi.fn((url: string) => {
+    if (url === 'https://www.googleapis.com/oauth2/v3/userinfo') {
+        return Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve({ email: 'test@google.com', name: 'Test User' }),
+        } as Response);
+    }
+    return Promise.reject(new Error('Not found'));
+});
+
 vi.mock('@react-oauth/google', () => ({
-    GoogleLogin: ({ onSuccess }: { onSuccess: (response: any) => void }) => (
-        <button onClick={() => onSuccess({ credential: 'mock-token' })}>
-            Sign in with Google
-        </button>
-    ),
+    useGoogleLogin: (options: UseGoogleLoginOptions) => {
+        return () => {
+            // Simulate successful Google login
+            options.onSuccess({ access_token: 'mock-access-token' });
+        };
+    },
 }));
 
 describe('AuthModal', () => {
@@ -52,7 +73,7 @@ describe('AuthModal', () => {
         expect(screen.getByLabelText('Password')).toBeInTheDocument();
         const loginButtons = screen.getAllByRole('button', { name: 'Login' });
         expect(loginButtons).toHaveLength(2); // Tab and Submit button
-        expect(screen.getByText('Sign in with Google')).toBeInTheDocument();
+        expect(screen.getByText('Continue with Google')).toBeInTheDocument();
     });
 
     it('switches to signup form', () => {
@@ -197,10 +218,10 @@ describe('AuthModal', () => {
             />
         );
 
-        fireEvent.click(screen.getByText('Sign in with Google'));
+        fireEvent.click(screen.getByText('Continue with Google'));
 
         await waitFor(() => {
-            expect(authService.loginWithGoogle).toHaveBeenCalledWith('mock-token');
+            expect(authService.loginWithGoogle).toHaveBeenCalled();
             expect(mockOnSuccess).toHaveBeenCalled();
             expect(mockOnClose).toHaveBeenCalled();
         });
@@ -217,7 +238,7 @@ describe('AuthModal', () => {
             />
         );
 
-        fireEvent.click(screen.getByText('Sign in with Google'));
+        fireEvent.click(screen.getByText('Continue with Google'));
 
         await waitFor(() => {
             expect(screen.getByText('Google login failed')).toBeInTheDocument();

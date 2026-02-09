@@ -7,7 +7,7 @@ interface LogEntry {
     url?: string;
     status?: number;
     timestamp: Date;
-    data?: any;
+    data?: unknown;
 }
 
 const DebugPanel: React.FC = () => {
@@ -16,7 +16,7 @@ const DebugPanel: React.FC = () => {
     const [health, setHealth] = useState<'checking' | 'ok' | 'error'>('checking');
     const [baseUrl, setBaseUrl] = useState('');
 
-    const addLog = (type: 'request' | 'response' | 'error', args: any[]) => {
+    const addLog = (type: 'request' | 'response' | 'error', args: unknown[]) => {
         setLogs(prev => [{
             type,
             timestamp: new Date(),

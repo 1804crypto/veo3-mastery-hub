@@ -10,8 +10,8 @@ const fetchUser = async (): Promise<User | null> => {
     try {
         const data: UserResponse = await api.get('/api/me');
         return data.user;
-    } catch (error: any) {
-        if (error.status === 401) {
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
             return null;
         }
         throw error;

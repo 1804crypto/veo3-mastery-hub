@@ -1,6 +1,6 @@
-// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
+import type { Request, Response, NextFunction } from 'express';
 
 // Mock PrismaClient
 const { mockPrisma } = vi.hoisted(() => {
@@ -24,19 +24,19 @@ vi.mock('@prisma/client', () => ({
 
 // Mock auth middleware
 vi.mock('../middleware/auth', () => ({
-    verifyAuth: (req: any, res: any, next: any) => {
-        req.user = { id: 'admin-id', email: 'admin@example.com', is_admin: true };
+    verifyAuth: (req: Request, res: Response, next: NextFunction) => {
+        (req as Request & { user?: { id: string; email: string; is_admin: boolean } }).user = { id: 'admin-id', email: 'admin@example.com', is_admin: true };
         next();
     },
-    authenticateToken: (req: any, res: any, next: any) => {
-        req.user = { id: 'admin-id', email: 'admin@example.com', is_admin: true };
+    authenticateToken: (req: Request, res: Response, next: NextFunction) => {
+        (req as Request & { user?: { id: string; email: string; is_admin: boolean } }).user = { id: 'admin-id', email: 'admin@example.com', is_admin: true };
         next();
     }
 }));
 
 // Mock admin middleware
 vi.mock('../middleware/admin', () => ({
-    verifyAdmin: (req: any, res: any, next: any) => {
+    verifyAdmin: (req: Request, res: Response, next: NextFunction) => {
         next();
     }
 }));

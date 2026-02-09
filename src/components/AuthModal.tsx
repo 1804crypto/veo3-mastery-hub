@@ -44,8 +44,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   }, [initialTab, isOpen]);
 
-  if (!isOpen) return null;
-
   // Use the implicit flow - gets an access_token instead of id_token
   // This approach avoids the iframe issues with the GoogleLogin component
   const handleGoogleLogin = async (accessToken: string) => {
@@ -159,6 +157,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   };
 
+  // Initialize Google Login hook at top level (before any conditional returns)
+  const googleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      handleGoogleLogin(tokenResponse.access_token);
+    },
+    onError: () => {
+      setError('Google Sign-In failed. Please try again.');
+    },
+    flow: 'implicit',
+  });
+
   const handleForgotPasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
@@ -193,15 +202,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuccess, i
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      handleGoogleLogin(tokenResponse.access_token);
-    },
-    onError: () => {
-      setError('Google Sign-In failed. Please try again.');
-    },
-    flow: 'implicit',
-  });
+  // All hooks must be called before this point
+  if (!isOpen) return null;
 
   const renderContent = () => {
     switch (activeView) {
