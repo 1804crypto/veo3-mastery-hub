@@ -15,6 +15,7 @@ interface OptionalEnvVars {
     STRIPE_SECRET_KEY?: string;
     STRIPE_WEBHOOK_SECRET?: string;
     GEMINI_API_KEY?: string;
+    ZAI_API_KEY?: string;
     CLIENT_ORIGIN?: string;
     CLIENT_SUCCESS_URL?: string;
     CLIENT_CANCEL_URL?: string;
@@ -49,6 +50,7 @@ export function validateEnv(): void {
     const optionalVars: (keyof OptionalEnvVars)[] = [
         'GOOGLE_CLIENT_ID',
         'STRIPE_SECRET_KEY',
+        'ZAI_API_KEY',
         'GEMINI_API_KEY',
         'DATABASE_URL',
         'JWT_SECRET',

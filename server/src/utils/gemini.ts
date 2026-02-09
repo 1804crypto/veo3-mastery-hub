@@ -1,6 +1,7 @@
-import { GoogleGenAI, Type } from '@google/genai';
+const ZAI_ENDPOINT = 'https://api.z.ai/api/paas/v4/chat/completions';
 import { VEO3Prompt } from '../types/shared';
 import { getCachedResponse, setCachedResponse } from './cache';
+
 const META_PROMPT = `
 You are "Cine-Maestro," an expert Hollywood film director and VEO3 prompt engineer. Your goal is to transform a user's raw video idea into a hyper-detailed, professional, 7-component JSON prompt for the VEO3 model.
 
@@ -21,17 +22,46 @@ The final output MUST be a single JSON object with the following keys: "veo3_pro
 User's Idea:
 `;
 
+async function callZAI(systemPrompt: string, userPrompt: string, useJson = true): Promise<string> {
+  const apiKey = process.env.ZAI_API_KEY;
+  if (!apiKey) throw new Error('ZAI_API_KEY not found');
+
+  const response = await fetch(ZAI_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: 'glm-4-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      response_format: useJson ? { type: 'json_object' } : undefined,
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Z.ai API error: ${response.status} ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || '';
+}
 
 export async function generatePromptFromIdea(
   idea: string,
   style?: string, // style and length are kept for potential future use
   length?: string
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs';
+  const apiKey = process.env.ZAI_API_KEY;
 
   // If no API key is present, return a mocked response for development/testing
   if (!apiKey) {
-    console.warn('GEMINI_API_KEY not found. Returning a mocked prompt.');
+    console.warn('ZAI_API_KEY not found. Returning a mocked prompt.');
     const mockInnerPrompt = {
       Subject: `A mock subject for the idea: '${idea}'`,
       Action: "The subject performs a mocked action with cinematic flair.",
@@ -54,43 +84,12 @@ export async function generatePromptFromIdea(
   // Check cache first
   const cached = getCachedResponse<string>('prompt', idea);
   if (cached) {
-    console.log('[Gemini] Returning cached prompt for idea');
+    console.log('[Z.ai] Returning cached prompt for idea');
     return cached;
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const fullPrompt = `${META_PROMPT}"${idea}"`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: fullPrompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            veo3_prompt: { type: Type.STRING },
-            style_references: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING }
-            },
-            technical_specifications: { type: Type.STRING },
-            production_parameters: { type: Type.STRING },
-            narrative_summary: { type: Type.STRING },
-          },
-          required: [
-            "veo3_prompt",
-            "style_references",
-            "technical_specifications",
-            "production_parameters",
-            "narrative_summary"
-          ]
-        }
-      }
-    });
-
-    const result = response.text || '';
+    const result = await callZAI(META_PROMPT, `"${idea}"`, true);
 
     // Cache the successful response
     if (result) {
@@ -99,40 +98,28 @@ export async function generatePromptFromIdea(
 
     return result;
   } catch (error: unknown) {
-    console.error('Error calling Gemini API:', error);
+    console.error('Error calling Z.ai API:', error);
 
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStatus = (error as { status?: number })?.status;
-
-    // Handle free tier quota exceeded gracefully
-    if (errorMessage.includes('quota') ||
-      errorMessage.includes('429') ||
-      errorStatus === 429) {
-      console.warn('Gemini API quota exceeded. Returning mock response for free tier compatibility.');
-      // Return mock response instead of error (free tier compatibility)
-      const mockInnerPrompt = {
-        Subject: `A detailed subject for the idea: '${idea}'`,
-        Action: "The subject performs an action with cinematic flair.",
-        Scene: `A cinematic scene matching the idea: '${idea}'.`,
-        Style: "Professional low-angle shot, 35mm lens, dramatic three-point lighting.",
-        Dialogue: "(Character): \"A compelling dialogue line.\"",
-        Sounds: "Rich ambient sounds, synchronized SFX, and emotional musical score.",
-        Technical: "Negative prompt: mangled hands, blurry, watermark, bad composition, ugly, distorted faces, extra limbs."
-      };
-      const mockPrompt: VEO3Prompt = {
-        veo3_prompt: JSON.stringify(mockInnerPrompt, null, 2),
-        style_references: ["Professional Cinema", "Modern Film Production"],
-        technical_specifications: `1080p, 24fps, 16:9 aspect ratio, ${length || '8 seconds'}`,
-        production_parameters: "Generate an 8-second clip with cinematic quality.",
-        narrative_summary: `This prompt is designed to create a compelling cinematic moment based on: '${idea}'. The structure follows professional VEO3 prompting principles.`
-      };
-      return JSON.stringify(mockPrompt);
-    }
-
-    throw new Error('Failed to generate prompt from Gemini API.');
+    // Mock fallback for quota issues
+    const mockInnerPrompt = {
+      Subject: `A detailed subject for the idea: '${idea}'`,
+      Action: "The subject performs an action with cinematic flair.",
+      Scene: `A cinematic scene matching the idea: '${idea}'.`,
+      Style: "Professional low-angle shot, 35mm lens, dramatic three-point lighting.",
+      Dialogue: "(Character): \"A compelling dialogue line.\"",
+      Sounds: "Rich ambient sounds, synchronized SFX, and emotional musical score.",
+      Technical: "Negative prompt: mangled hands, blurry, watermark, bad composition, ugly, distorted faces, extra limbs."
+    };
+    const mockPrompt: VEO3Prompt = {
+      veo3_prompt: JSON.stringify(mockInnerPrompt, null, 2),
+      style_references: ["Professional Cinema", "Modern Film Production"],
+      technical_specifications: `1080p, 24fps, 16:9 aspect ratio, ${length || '8 seconds'}`,
+      production_parameters: "Generate an 8-second clip with cinematic quality.",
+      narrative_summary: `This prompt is designed to create a compelling cinematic moment based on: '${idea}'. The structure follows professional VEO3 prompting principles.`
+    };
+    return JSON.stringify(mockPrompt);
   }
 }
-
 
 const ENHANCE_PROMPT = `
 You are a "Ghostwriter" for a high-end film director. Your job is to take a specific component of a VEO3 video prompt (Subject, Action, Scene, Style, Dialogue, or Sounds) and rewrite it to be more cinematic, detailed, and technically precise for AI video generation.
@@ -153,21 +140,15 @@ export async function enhanceText(
   type: string, // e.g., 'Subject', 'Action'
   context: string // The full current prompt for context
 ): Promise<string> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || 'AIzaSyCsb4CW-zyGcpYCbTMQ_B44BZw9B8hzcDs';
+  const apiKey = process.env.ZAI_API_KEY;
   if (!apiKey) return `(Enhanced) ${text}`;
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const fullPrompt = `${ENHANCE_PROMPT}\n\nContext of full prompt: ${context}\n\nComponent to enhance: ${type}\nOriginal text: "${text}"\n\nRewrite this ${type} to be cinematic and detailed:`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp', // Fast model for real-time edits
-      contents: fullPrompt,
-    });
-
-    return response.text?.trim() || text;
+    const userPrompt = `Context of full prompt: ${context}\n\nComponent to enhance: ${type}\nOriginal text: "${text}"\n\nRewrite this ${type} to be cinematic and detailed:`;
+    const result = await callZAI(ENHANCE_PROMPT, userPrompt, false);
+    return result.trim() || text;
   } catch (error) {
-    console.error('Gemini verify error:', error);
+    console.error('Z.ai enhance error:', error);
     return text; // Fallback to original
   }
 }
