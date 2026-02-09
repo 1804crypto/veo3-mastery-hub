@@ -5,7 +5,7 @@ import { CINEMATIC_MASTER_GUIDE } from './cinematicGuide';
 const ZAI_API_KEY = process.env.ZAI_API_KEY;
 // Using GLM-4-Flash which is often the most reliable/fast model tier available on the generic endpoint.
 // If this fails, the robust fallback system will kick in.
-const ZAI_MODEL = 'glm-4-flash';
+const ZAI_MODEL = 'glm-4.5-air';
 const ZAI_ENDPOINT = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
 
 const META_PROMPT = `
