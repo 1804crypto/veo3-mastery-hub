@@ -4,11 +4,18 @@ import Card from './ui/Card';
 import Button from './ui/Button';
 import AbstractAvatar from './ui/icons/AbstractAvatar';
 import { useCommunityAI } from '../hooks/useCommunity';
+import { useVoiceOperator } from '../hooks/useVoiceOperator';
 
 interface CommunityHubProps {
     hasAccess: boolean;
     openSubscriptionModal: () => void;
 }
+
+const SpeakerIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+    </svg>
+);
 
 const LockIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,8 +44,6 @@ interface Message {
     message: string;
 }
 
-
-
 const initialMessages: Message[] = [
     { user: 'CinephileMax', time: '2m ago', message: 'Just generated a Kurosawa-inspired shot with a telephoto lens that looks incredible. The compression is insane!' },
     { user: 'VFX_Wizard', time: '5m ago', message: 'Has anyone tried prompting for "impossible" camera moves that pass through solid objects? The results are wild.' },
@@ -59,6 +64,7 @@ const CommunityHub: React.FC<CommunityHubProps> = ({ hasAccess, openSubscription
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     const { mutateAsync: getAIReply, isPending: isAiThinking } = useCommunityAI();
+    const { vocalize, stop, isPlaying } = useVoiceOperator();
 
     useEffect(() => {
         if (chatContainerRef.current) {
@@ -74,23 +80,23 @@ const CommunityHub: React.FC<CommunityHubProps> = ({ hasAccess, openSubscription
 
         setMessages(updatedMessages);
         setNewMessage('');
-        // setIsTyping(true); // Replaced by isAiThinking from mutation
 
         try {
             const aiReplyText = await getAIReply({ userMessage: newMessage, chatHistory: messages });
             const botMessage: Message = { user: 'AI_Assistant', time: 'Just now', message: aiReplyText };
             setMessages(prev => [...prev, botMessage]);
+
+            // Auto-vocalize AI assistant replies
+            vocalize(aiReplyText);
         } catch (error) {
             console.error("Failed to get AI reply", error);
         }
 
-    }, [newMessage, isTyping, isAiThinking, messages, getAIReply]);
+    }, [newMessage, isTyping, isAiThinking, messages, getAIReply, vocalize]);
 
     if (!hasAccess) {
         return <LockedView onUpgrade={openSubscriptionModal} />;
     }
-
-
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -113,10 +119,17 @@ const CommunityHub: React.FC<CommunityHubProps> = ({ hasAccess, openSubscription
                                     <div className="w-10 h-10 rounded-full flex-shrink-0">
                                         <AbstractAvatar name={msg.user} />
                                     </div>
-                                    <div>
+                                    <div className="flex-1">
                                         <div className="flex items-baseline gap-2">
                                             <p className={`font-bold ${msg.user === 'You' ? 'text-blue-300' : (msg.user === 'AI_Assistant' ? 'text-green-300' : 'text-white')}`}>{msg.user}</p>
                                             <p className="text-xs text-gray-500">{msg.time}</p>
+                                            <button
+                                                onClick={() => vocalize(msg.message)}
+                                                className="ml-auto text-gray-500 hover:text-blue-400 transition-colors"
+                                                title="Read message aloud"
+                                            >
+                                                <SpeakerIcon />
+                                            </button>
                                         </div>
                                         <p className="text-gray-300">{msg.message}</p>
                                     </div>

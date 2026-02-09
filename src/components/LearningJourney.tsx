@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { journeyContent } from '../constants';
 import Card from './ui/Card';
-import { useTextToSpeech } from '../hooks/useTextToSpeech';
+import { useVoiceOperator } from '../hooks/useVoiceOperator';
 import TTSButton from './ui/TTSButton';
 
 const LearningJourney: React.FC = () => {
   const [activeChapter, setActiveChapter] = useState(0);
-  const { play, stop, isLoading, isPlaying } = useTextToSpeech();
+  const { vocalize, stop, isLoading, isPlaying } = useVoiceOperator();
 
   // Stop playback when the chapter changes or component unmounts
   useEffect(() => {
@@ -28,11 +28,10 @@ const LearningJourney: React.FC = () => {
               <button
                 key={index}
                 onClick={() => setActiveChapter(index)}
-                className={`text-left px-4 py-2 rounded-md transition-all duration-200 text-sm ${
-                  activeChapter === index
+                className={`text-left px-4 py-2 rounded-md transition-all duration-200 text-sm ${activeChapter === index
                     ? 'bg-blue-500/20 text-blue-300 border-l-4 border-blue-400 font-bold'
                     : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
-                }`}
+                  }`}
               >
                 {`${index + 1}. ${chapter.title}`}
               </button>
@@ -49,7 +48,7 @@ const LearningJourney: React.FC = () => {
             <TTSButton
               isLoading={isLoading}
               isPlaying={isPlaying}
-              onPlay={() => play(chapterText)}
+              onPlay={() => vocalize(chapterText)}
               onStop={stop}
             />
           </div>

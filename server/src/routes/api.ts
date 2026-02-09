@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { generatePrompt } from '../controllers/promptController';
 import { getCurrentUser } from '../controllers/userController';
-import { generateSpeech } from '../controllers/speechController';
 import { verifyAuth } from '../middleware/auth';
 import { rateLimiter } from '../middleware/rateLimiter';
 
@@ -17,9 +16,5 @@ import { optionalAuth } from '../middleware/optionalAuth';
 // This endpoint is protected and rate-limited.
 // Note: Authentication is optional - guests get 5 free generations per day (tracked on frontend), rate limited by IP on backend
 router.post('/generate-prompt', optionalAuth, rateLimiter, generatePrompt);
-
-// This endpoint is public for the learning journey.
-router.post('/generate-speech', generateSpeech);
-
 
 export default router;

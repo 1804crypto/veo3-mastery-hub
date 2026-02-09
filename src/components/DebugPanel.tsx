@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api';
+import { useVoiceOperator } from '../hooks/useVoiceOperator';
 
 interface LogEntry {
     type: 'request' | 'response' | 'error';
@@ -15,6 +16,8 @@ const DebugPanel: React.FC = () => {
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [health, setHealth] = useState<'checking' | 'ok' | 'error'>('checking');
     const [baseUrl, setBaseUrl] = useState('');
+
+    const { vocalize, isPlaying } = useVoiceOperator();
 
     const addLog = (type: 'request' | 'response' | 'error', args: unknown[]) => {
         setLogs(prev => [{
@@ -32,6 +35,10 @@ const DebugPanel: React.FC = () => {
         } catch (e) {
             setHealth('error');
         }
+    };
+
+    const handleVoiceTest = () => {
+        vocalize("Uplink status: Optimal. Free Speech Generator is online.");
     };
 
     useEffect(() => {
@@ -117,11 +124,40 @@ const DebugPanel: React.FC = () => {
             </div>
 
             <div style={{ padding: '10px', borderBottom: '1px solid #333' }}>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <button
+                        onClick={handleVoiceTest}
+                        disabled={isPlaying}
+                        style={{
+                            background: isPlaying ? '#444' : '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            padding: '5px 10px',
+                            borderRadius: '4px',
+                            cursor: isPlaying ? 'not-allowed' : 'pointer',
+                            fontSize: '10px'
+                        }}
+                    >
+                        {isPlaying ? 'SPEAKING...' : 'TEST VOICE OP'}
+                    </button>
+                    <button
+                        onClick={checkHealth}
+                        style={{
+                            background: '#444',
+                            color: 'white',
+                            border: 'none',
+                            padding: '5px 10px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '10px'
+                        }}
+                    >
+                        RECHECK HEALTH
+                    </button>
+                </div>
                 <div><strong>Resolved Base URL:</strong> {baseUrl}</div>
                 <div style={{ marginTop: '5px', fontSize: '10px', color: '#999' }}>
                     <div>VITE_APP_API_URL: {import.meta.env.VITE_APP_API_URL || '(not set)'}</div>
-                    <div>VITE_API_URL: {import.meta.env.VITE_API_URL || '(not set)'}</div>
-                    <div>VITE_API_BASE_URL: {import.meta.env.VITE_API_BASE_URL || '(not set)'}</div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
                     <strong>Status:</strong>
@@ -134,7 +170,6 @@ const DebugPanel: React.FC = () => {
                     }}>
                         {health.toUpperCase()}
                     </span>
-                    <button onClick={checkHealth} style={{ marginLeft: 'auto', padding: '2px 5px', fontSize: '10px', cursor: 'pointer' }}>Retry</button>
                 </div>
             </div>
 
